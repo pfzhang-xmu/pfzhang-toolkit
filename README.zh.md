@@ -11,6 +11,7 @@
 | [`dsh-github-workspace`](./dsh-github-workspace) | 基于本机 GitHub CLI 的工作区，可在 DSH Web GUI 中浏览仓库并提交文本文件修改。 |
 | [`dsh-image-tools`](./dsh-image-tools) | Host 端插件，为 DSH agent 注册 OpenAI Images 兼容的 `generate_image` / `edit_image` 工具，输出保存到项目目录。 |
 | [`dsh-cowart`](./dsh-cowart) | 嵌入 DSH Web GUI 的 tldraw 无限画布，项目存储 + 常驻悬浮窗 + 「生成 → 标注 → 按标注精修」agent 工作流。 |
+| [`dsh-figureforge`](./dsh-figureforge) | 基于 React + TypeScript 的浏览器本地科研图片编辑器，支持 PNG/TIFF 导出和兼容工程 JSON。 |
 
 每个插件都位于独立目录中，并应提供安装、配置、安全边界和验证说明。后续新增插件请作为根目录下的同级目录添加，并同步更新本索引。
 
