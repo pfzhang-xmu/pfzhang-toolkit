@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.dsh-images/
+canvas/node_modules/
+canvas/dist/
+*.reload.js
+.DS_Store

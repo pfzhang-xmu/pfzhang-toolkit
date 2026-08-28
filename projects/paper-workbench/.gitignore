@@ -1,0 +1,54 @@
+# ===== Python 构建产物 =====
+__pycache__/
+*.py[cod]
+*.pyd
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ===== 打包 / 发布 =====
+*.exe
+!build_exe.py
+!PaperWorkbench.spec
+
+# ===== 真实用户配置(保留 example 模板) =====
+app_config.json
+!app_config.example.json
+
+# ===== 运行时数据 / 台账 / 图表 / 个人研究产物(不进 git) =====
+data/
+!data/.gitkeep
+*.log
+server.log
+*.local.log
+
+# ===== 会话 / 本地状态 =====
+.dsh_workbench_session
+.dsh_workbench_session.lock
+.dsh_workbench_pool.json
+.last-project
+.write_test
+
+# ===== 临时 / 备份 / scratch =====
+*.tmp
+*.bak
+*.bak-*
+*.swp
+*.swo
+*~
+Thumbs.db
+.DS_Store
+
+# ===== 虚拟环境 / IDE =====
+.venv/
+venv/
+env/
+.vscode/
+.idea/
+
+# ===== 测试 / 覆盖率 =====
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/

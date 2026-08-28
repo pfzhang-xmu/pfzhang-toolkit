@@ -1,0 +1,28 @@
+{
+  "name": "dsh-github-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local GitHub CLI workspace for DeepSeek Harness.",
+  "main": "index.js",
+  "files": ["index.js", "lib", "client", "test", "README.md", "LICENSE", "cordis.patch.yml"],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "check": "node --check ./index.js && node --check ./lib/routes.mjs && node --check ./client/client.js && node --check ./test/routes.test.mjs",
+    "test": "node --test ./test/routes.test.mjs"
+  },
+  "license": "MIT"
+}

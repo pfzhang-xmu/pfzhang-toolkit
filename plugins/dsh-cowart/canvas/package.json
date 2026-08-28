@@ -1,0 +1,26 @@
+{
+  "name": "dsh-cowart-canvas",
+  "version": "0.1.25",
+  "private": true,
+  "type": "module",
+  "description": "Vendored Cowart tldraw canvas app, patched for DeepSeek Harness (DSH bridge + /cowart/ base). Built into ../dist/cowart by the dsh-cowart host plugin.",
+  "scripts": {
+    "dev": "vite",
+    "build": "node ./scripts/vite-build-once.mjs",
+    "check": "node --check ./src/cowartClient.js && node --check ./src/analytics.js && node --check ./vite.config.js && node --check ./scripts/vite-build-once.mjs"
+  },
+  "dependencies": {
+    "@tiptap/pm": "3.27.0",
+    "@tldraw/assets": "^5.1.1",
+    "html2canvas": "^1.4.1",
+    "lucide-react": "^1.24.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tldraw": "^5.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "vite": "^7.0.0"
+  },
+  "license": "MIT"
+}

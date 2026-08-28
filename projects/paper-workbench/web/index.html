@@ -1,0 +1,3080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>论文工作台 Paper Workbench</title>
+<style>
+/* ═══════════ DSH Design System (dsw tokens · light-first) ═══════════ */
+:root{
+  --bg:#f9fafb;--bg2:#f9fafb;--panel:#ffffff;--card:#ffffff;--card2:#f5f6f7;--card3:#ebedf2;
+  --line:rgba(0,0,0,.04);--line2:rgba(0,0,0,.10);--line3:rgba(0,0,0,.12);
+  --fg:#0f1115;--dim:#61666b;--dim2:#81858c;
+  --acc:#567ffe;--acc2:#679efe;--acc-soft:rgba(38,49,72,.06);--acc-soft2:rgba(38,49,72,.10);
+  --ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--violet:#8250df;
+  --brand:#0f1115;--brand-hover:#33363c;
+  --shadow:0 1px 3px rgba(0,0,0,.04);--shadow-sm:none;
+  --r-lg:12px;--r-md:8px;--r-sm:6px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-code:"SF Mono","JetBrains Mono","Fira Code",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+  --fs-2xs:11px;--fs-xs:12px;--fs-sm:13px;--fs-md:13.5px;--fs-lg:14px;--fs-xl:16px;--fs-2xl:20px;--fs-3xl:24px;
+  --ease:cubic-bezier(.4,0,.2,1);--dur:.2s;--dur-fast:.1s;
+  --ok-soft:rgba(34,197,94,.10);--warn-soft:rgba(245,158,11,.10);--danger-soft:rgba(239,68,68,.10);--violet-soft:rgba(130,80,223,.10);
+  --shadow-md:0 4px 16px rgba(15,17,21,.06);--r-xl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--font);
+  height:100vh;overflow:hidden;line-height:1.55;font-size:var(--fs-md);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+::selection{background:rgba(86,127,254,.20)}
+
+/* SVG icons scale with font-size */
+.ico svg,.hico svg,.sico svg,.eico svg,.toast>span:first-child svg{width:1em;height:1em;flex:none}
+.pl-name svg,.seg span svg,.bar span svg{width:1em;height:1em;flex:none;vertical-align:-0.15em}
+.ico,.hico{display:inline-flex;align-items:center;justify-content:center}
+.nav .ico{opacity:.85}
+
+/* ═══════════ Layout ═══════════ */
+.app{display:flex;height:100vh}
+.sidebar{
+  width:224px;background:var(--panel);
+  border-right:1px solid var(--line);display:flex;flex-direction:column;
+  padding:16px 12px 12px;flex-shrink:0;z-index:5;
+}
+.logo{font-size:15px;font-weight:600;padding:2px 10px 12px;letter-spacing:.01em;color:var(--fg);
+  border-bottom:1px solid var(--line);margin-bottom:10px}
+.logo small{display:block;font-size:11px;color:var(--dim2);font-weight:400;margin-top:3px;letter-spacing:.02em}
+.nav-group{font-size:10.5px;color:var(--dim2);text-transform:uppercase;letter-spacing:.08em;margin:12px 10px 5px;font-weight:600}
+nav{display:flex;flex-direction:column;gap:2px;flex:1}
+.nav{
+  position:relative;background:transparent;border:none;color:var(--dim);text-align:left;
+  padding:8px 10px;border-radius:var(--r-md);font-size:13px;cursor:pointer;font-family:inherit;
+  transition:background var(--dur) var(--ease),color var(--dur) var(--ease);display:flex;align-items:center;gap:9px;
+}
+.nav .ico{font-size:15px;width:18px;text-align:center}
+.nav:hover{background:var(--acc-soft);color:var(--fg)}
+.nav.active{background:var(--acc-soft2);color:var(--fg);font-weight:500}
+.nav.active::before{content:"";position:absolute;left:0;top:24%;bottom:24%;width:2px;border-radius:2px;background:var(--acc)}
+.side-foot{font-size:11px;color:var(--dim2);padding:10px 6px 2px;border-top:1px solid var(--line);margin-top:10px}
+.side-foot .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px}
+.side-foot .btn{width:100%;margin-bottom:10px}
+
+.right{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{
+  height:50px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:0 24px;border-bottom:1px solid var(--line);
+  background:var(--panel);position:sticky;top:0;z-index:10;flex-shrink:0;
+}
+#pageTitle{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px;letter-spacing:.01em}
+#pageTitle .ico{font-size:16px}
+#pageTitle small{color:var(--dim);font-weight:400;font-size:12px;margin-left:4px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.svc{font-size:11.5px;color:var(--dim);display:flex;align-items:center;gap:6px}
+.svc .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+main{flex:1;overflow-y:auto;padding:22px 26px 44px;scrollbar-width:thin}
+.view{display:none;animation:fadeUp .18s var(--ease)}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ═══════════ Components ═══════════ */
+h1{font-size:var(--fs-2xl);margin-bottom:6px;letter-spacing:.01em;display:flex;align-items:center;gap:10px;font-weight:600}
+h1 small{color:var(--dim);font-weight:400;font-size:13px;margin-left:2px}
+.sub{color:var(--dim);font-size:var(--fs-sm);margin-bottom:12px}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;margin-bottom:16px;
+  transition:border-color var(--dur) var(--ease);position:relative;
+}
+.card:hover{border-color:var(--line2)}
+.card h2{font-size:var(--fs-lg);margin-bottom:13px;color:var(--fg);display:flex;align-items:center;gap:8px;font-weight:600}
+.card h2 .hico{font-size:15px;color:var(--acc)}
+.card h2 .hint{font-size:11px;color:var(--dim2);font-weight:400;margin-left:auto}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+input,select,textarea{
+  background:var(--card);border:1px solid var(--line2);color:var(--fg);border-radius:var(--r-sm);
+  padding:7px 11px;font-size:13px;font-family:inherit;min-height:34px;
+  transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+}
+input::placeholder,textarea::placeholder{color:var(--dim2)}
+input:hover,select:hover,textarea:hover{border-color:var(--line3)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(86,127,254,.12)}
+input[type=text],input[type=password],input[type=number],select{min-width:150px}
+textarea{width:100%;resize:vertical;min-height:110px;line-height:1.6}
+
+button{
+  background:var(--brand);border:none;color:#fff;border-radius:var(--r-sm);
+  padding:6px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  transition:background var(--dur) var(--ease),transform var(--dur-fast) var(--ease);font-weight:500;
+}
+button:hover{background:var(--brand-hover)}
+button:active{transform:translateY(1px)}
+button.ghost{background:transparent;border:1px solid var(--line2);color:var(--dim)}
+button.ghost:hover{color:var(--fg);border-color:var(--line3);background:var(--acc-soft)}
+button.ok{background:var(--ok);color:#fff}
+button.ok:hover{background:#16a34a}
+button.warn{background:var(--warn);color:#fff}
+button.warn:hover{background:#d97706}
+button.danger{background:var(--danger);color:#fff}
+button.danger:hover{background:#dc2626}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+button.loading{pointer-events:none;opacity:.75}
+button.loading::after{content:"";display:inline-block;width:12px;height:12px;margin-left:8px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+pre{
+  background:var(--card2);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;
+  font-size:12.5px;overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;
+  margin-top:12px;color:var(--fg);line-height:1.6;font-family:var(--font-code);
+}
+pre.okout{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.04)}
+pre.errout{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.04)}
+
+.empty{text-align:center;padding:34px 16px;color:var(--dim2);font-size:13px}
+.empty .eico{font-size:30px;display:block;margin-bottom:10px;opacity:.4}
+.hidden{display:none}
+
+/* ═══════════ Stats Cards ═══════════ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:14px 16px;position:relative;overflow:hidden;transition:border-color var(--dur) var(--ease);
+}
+.stat:hover{border-color:var(--line2)}
+.stat .sico{position:absolute;right:14px;top:14px;font-size:20px;opacity:.35}
+.stat .snum{font-size:var(--fs-3xl);font-weight:700;letter-spacing:.02em;line-height:1.15}
+.stat .slabel{font-size:11.5px;color:var(--dim);margin-top:5px;letter-spacing:.02em}
+.stat .sbar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--s-c1,var(--acc));opacity:.6}
+
+/* ═══════════ Project Grid ═══════════ */
+.proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.proj{
+  display:flex;flex-direction:column;gap:10px;padding:14px 16px;border:1px solid var(--line);
+  border-radius:var(--r-lg);cursor:pointer;background:var(--card);
+  transition:border-color var(--dur) var(--ease);position:relative;overflow:hidden;
+}
+.proj:hover{border-color:var(--line2)}
+.proj.sel{border-color:var(--acc);box-shadow:0 0 0 1px rgba(86,127,254,.20)}
+.proj .p-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.proj .t{font-size:14px;font-weight:600;color:var(--fg);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj .d{font-size:11.5px;color:var(--dim2);font-family:var(--font-code);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj .meta{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--dim)}
+.proj .meta .time{margin-left:auto;color:var(--dim2)}
+.mini-bar{flex:1;max-width:200px;height:8px;border-radius:4px;background:var(--card3);overflow:hidden}
+.mini-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--ok),#6ee7a0);transition:width .5s var(--ease)}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:999px;font-size:11px;
+  background:rgba(86,127,254,.10);color:var(--acc);font-weight:600;letter-spacing:.02em;white-space:nowrap;
+}
+.badge.ok{background:rgba(34,197,94,.10);color:var(--ok)}
+.badge.warn{background:rgba(245,158,11,.10);color:var(--warn)}
+.badge.danger{background:rgba(239,68,68,.10);color:var(--danger)}
+.badge.violet{background:rgba(130,80,223,.10);color:var(--violet)}
+
+/* ═══════════ Stage Progress Bar ═══════════ */
+.bar{display:flex;gap:4px;margin:16px 0 6px}
+.seg{flex:1;height:12px;border-radius:6px;background:var(--card3);position:relative;overflow:hidden;transition:background .3s var(--ease)}
+.seg.done{background:var(--ok)}
+.seg.cur{background:var(--acc);box-shadow:0 0 0 2px rgba(86,127,254,.25)}
+.seg span{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--dim2);white-space:nowrap;font-weight:600}
+.seg.done span{color:var(--ok)}
+.seg.cur span{color:var(--acc)}
+
+/* ═══════════ Checkpoints / Files / Skills ═══════════ */
+.ck{display:flex;gap:12px;align-items:center;padding:11px 14px;border-radius:var(--r-md);font-size:13px;cursor:pointer;transition:background var(--dur-fast) var(--ease);border-bottom:1px solid var(--line)}
+.ck:last-child{border-bottom:none}
+.ck:hover{background:var(--acc-soft)}
+.ck .dot{flex:none;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all var(--dur-fast) var(--ease)}
+.ck.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.ck-main{flex:1;min-width:0}
+.ck-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1.5}
+.ck-n{flex:none;font-size:11px;font-weight:700;color:var(--dim2);min-width:16px}
+.ck-task{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.ck.done .ck-task{color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(97,102,107,.35)}
+.ck-tool{background:var(--card3);border-radius:4px;padding:1px 7px;font-size:11px;color:var(--dim);font-family:var(--font-code)}
+.ck-next{flex:none;font-size:10.5px;font-weight:600;color:var(--acc);background:var(--acc-soft2);border-radius:999px;padding:1px 9px}
+.ck-meta{font-size:11px;color:var(--dim2);margin-top:3px;font-family:var(--font-code);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck.next{background:var(--acc-soft);box-shadow:inset 3px 0 0 var(--acc)}
+.ck.next .ck-n{color:var(--acc)}
+.ck-actions{flex:none;display:flex;gap:6px;align-items:center}
+.ck-actions .q-btn{padding:4px 12px;font-size:11.5px}
+.fileitem{
+  display:inline-flex;align-items:center;gap:5px;margin:4px;padding:4px 11px;border:1px solid var(--line2);
+  border-radius:var(--r-md);font-size:12px;cursor:pointer;transition:border-color var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease);color:var(--dim);
+}
+.fileitem:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-soft)}
+.dirline{font-size:11.5px;color:var(--dim2);margin:10px 0 4px;letter-spacing:.02em;display:flex;align-items:center;gap:6px}
+.skill{
+  display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border:1px solid var(--line2);
+  border-radius:var(--r-md);margin-bottom:10px;background:var(--card);transition:border-color var(--dur) var(--ease);
+}
+.skill:hover{border-color:var(--line3)}
+.skill .name{font-weight:600;font-size:13px;font-family:var(--font-code)}
+.skill .desc{font-size:12px;color:var(--dim);margin-top:4px;line-height:1.5}
+.switch{position:relative;width:40px;height:22px;background:var(--card3);border-radius:999px;cursor:pointer;transition:background var(--dur) var(--ease);flex-shrink:0}
+.switch.on{background:var(--ok)}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left var(--dur) var(--ease);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.switch.on::after{left:21px}
+
+/* ═══════════ Charts / Preview / Tables ═══════════ */
+.chart-img{max-width:100%;border:1px solid var(--line);border-radius:var(--r-md);margin-top:12px}
+.md-preview{line-height:1.75;font-size:14px;color:var(--fg);max-width:780px}
+.md-preview h1{font-size:22px;font-weight:700;margin:28px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line2)}
+.md-preview h2{font-size:18px;font-weight:600;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line2)}
+.md-preview h3{font-size:15.5px;font-weight:600;margin:20px 0 8px;padding-left:10px;border-left:3px solid var(--acc)}
+.md-preview h4{font-size:14px;font-weight:600;margin:16px 0 6px;color:var(--dim)}
+.md-preview p{margin:10px 0}
+.md-preview ul,.md-preview ol{margin:10px 0;padding-left:24px}
+.md-preview li{margin:4px 0}
+.md-preview img{max-width:100%;border-radius:var(--r-md);border:1px solid var(--line);margin:12px 0}
+.md-preview table{border-collapse:collapse;width:100%;margin:14px 0;border-radius:var(--r-sm);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.md-preview th{background:var(--card2);color:var(--dim);font-weight:600;font-size:12px;letter-spacing:.02em;padding:9px 13px;text-align:left;border-bottom:2px solid var(--line2)}
+.md-preview td{border-bottom:1px solid var(--line);padding:8px 13px;font-size:13px}
+.md-preview tr:hover td{background:var(--acc-soft)}
+.md-preview pre{background:var(--card2);border:1px solid var(--line);padding:14px 16px;border-radius:var(--r-md);overflow:auto;color:var(--fg);font-size:13px;position:relative}
+.md-preview pre::before{content:attr(data-lang);position:absolute;top:0;right:0;background:var(--card3);color:var(--dim2);font-size:10px;padding:2px 8px;border-radius:0 var(--r-md) 0 var(--r-sm);font-family:var(--font)}
+.md-preview blockquote{border-left:3px solid var(--acc);margin:14px 0;padding:6px 16px;color:var(--dim);background:var(--acc-soft);border-radius:0 var(--r-md) var(--r-md) 0}
+.md-preview code{background:rgba(86,127,254,.10);padding:1px 6px;border-radius:4px;font-size:12.5px;font-family:var(--font-code)}
+.md-preview a{color:var(--acc);text-decoration:none;border-bottom:1px solid transparent;transition:border-color var(--dur-fast) var(--ease)}
+.md-preview a:hover{border-bottom-color:var(--acc)}
+.md-preview hr{border:none;border-top:1px solid var(--line2);margin:20px 0}
+.md-preview sup{font-size:10px;color:var(--acc);vertical-align:super}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;border-radius:var(--r-sm);overflow:hidden}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left}
+th{background:var(--card2);color:var(--dim);font-weight:600;font-size:12px;letter-spacing:.02em}
+tr:hover td{background:var(--acc-soft)}
+tr:nth-child(even) td{background:rgba(0,0,0,.012)}
+.dl-link{color:var(--acc);font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border:1px solid var(--line);border-radius:var(--r-sm);transition:background var(--dur-fast) var(--ease)}
+.dl-link:hover{background:var(--acc-soft)}
+.sci-table-wrap{margin-top:14px;overflow-x:auto}
+.sci-table{width:100%;border-collapse:collapse;font-size:13px;margin:0}
+.sci-table thead tr{border-top:2px solid #333;border-bottom:1px solid #333}
+.sci-table tbody tr{border-bottom:none}
+.sci-table tbody tr:last-child{border-bottom:2px solid #333}
+.sci-table th{font-weight:600;font-size:12px;padding:8px 12px;text-align:center;color:var(--dim);letter-spacing:.02em;border:none}
+.sci-table td{padding:7px 12px;text-align:center;border:none;font-size:13px}
+.sci-table td:first-child,.sci-table th:first-child{text-align:left}
+.sci-table tbody tr:hover td{background:var(--acc-soft)}
+.tbl-title{font-weight:600;font-size:13px;margin-bottom:8px;color:var(--fg)}
+.tbl-note{font-size:11px;color:var(--dim2);margin-top:6px;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid2-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+/* ═══════════ Quick Start Guide ═══════════ */
+.guide{border:1px solid rgba(86,127,254,.20);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;background:linear-gradient(135deg,rgba(86,127,254,.04),rgba(86,127,254,.01))}
+.guide-head{display:flex;align-items:center;gap:10px;padding:14px 18px;cursor:pointer;user-select:none;transition:background var(--dur) var(--ease)}
+.guide-head:hover{background:rgba(86,127,254,.04)}
+.guide-head .gh-icon{width:28px;height:28px;border-radius:8px;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.guide-head .gh-title{font-size:14px;font-weight:600;color:var(--fg)}
+.guide-head .gh-sub{font-size:12px;color:var(--dim);margin-left:4px}
+.guide-head .gh-toggle{margin-left:auto;font-size:12px;color:var(--dim2);transition:transform var(--dur) var(--ease)}
+.guide.open .gh-toggle{transform:rotate(180deg)}
+.guide-body{display:none;padding:4px 18px 16px}
+.guide.open .guide-body{display:block;animation:fadeUp .2s var(--ease)}
+.guide-steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.gs{display:flex;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--card);border:1px solid var(--line)}
+.gs-num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--acc-soft2);color:var(--acc);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.gs-txt{font-size:12.5px;line-height:1.55;color:var(--dim)}
+.gs-txt b{color:var(--fg);display:block;margin-bottom:2px;font-size:13px}
+.gs-txt code{background:var(--card3);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--acc)}
+@media(max-width:760px){.guide-steps{grid-template-columns:1fr}}
+
+/* ═══════════ Pipeline Overview ═══════════ */
+.pl-row{display:flex;align-items:center;gap:14px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:8px;cursor:pointer;transition:border-color var(--dur) var(--ease),background var(--dur) var(--ease);background:var(--card)}
+.pl-row:hover{border-color:var(--line2);background:var(--card2)}
+.pl-name{flex:2 1 0;min-width:120px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;line-height:1.4}
+.pl-name > span{min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:normal}
+.pl-segs{flex:1 1 40%;display:flex;gap:4px;min-width:120px}
+.pl-seg{flex:1;height:10px;border-radius:5px;background:var(--card3);transition:background .35s var(--ease);position:relative}
+.pl-seg.done{background:linear-gradient(180deg,var(--ok),#6ee7a0)}
+.pl-seg.cur{background:var(--acc);box-shadow:0 0 6px rgba(86,127,254,.4)}
+.pl-seg.pend::after{content:"";position:absolute;left:0;top:0;bottom:0;width:100%;background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.04) 5px 6px)}
+.pl-seg span{display:none}
+.pl-pct{flex:0 0 auto;width:44px;text-align:right;font-size:12px;font-weight:700;color:var(--dim)}
+.pl-pct.hi{color:var(--ok)}
+.pl-act{flex:0 0 auto}
+.pl-act button{padding:5px 14px;font-size:12px}
+@media(max-width:1100px){
+  .pl-row{flex-wrap:wrap;gap:8px}
+  .pl-name{flex:1 1 100%}
+  .pl-segs{flex:1 1 60%}
+}
+
+/* Quality diagnostics */
+.q-summary{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.qs-row{display:flex;align-items:flex-start;gap:8px}
+.qs-msg{flex:1;min-width:0;font-size:12px;color:var(--dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qs-line{color:var(--dim2);font-family:var(--font-code);font-size:11px;margin-left:6px;white-space:nowrap}
+.q-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.q-chip.p0{background:rgba(239,68,68,.10);color:var(--danger)}
+.q-chip.p1{background:rgba(245,158,11,.10);color:var(--warn)}
+.q-chip.p2{background:rgba(130,80,223,.10);color:var(--violet)}
+.q-spark{vertical-align:middle;margin-left:6px;opacity:.95}
+.q-sev{display:inline-flex;align-items:center;padding:1px 9px;border-radius:999px;font-size:10.5px;font-weight:700;flex:none;letter-spacing:.02em}
+.q-sev.P0{background:rgba(239,68,68,.12);color:var(--danger)}
+.q-sev.P1{background:rgba(245,158,11,.10);color:var(--warn)}
+.q-sev.P2{background:rgba(130,80,223,.10);color:var(--violet)}
+.q-item{border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:7px;overflow:hidden;background:var(--card)}
+.q-item .q-head{display:flex;align-items:center;gap:9px;padding:8px 12px;font-size:13px}
+.q-item .q-loc{flex:none;font-family:var(--font-code);font-size:11px;color:var(--dim2);white-space:nowrap}
+.q-item .q-msg{flex:1;min-width:0;color:var(--fg);line-height:1.5;word-break:break-word;overflow-wrap:anywhere}
+.q-item .q-btn{border:1px solid var(--line2);background:transparent;color:var(--dim);border-radius:var(--r-sm);padding:3px 9px;font-size:11.5px;cursor:pointer;flex:none;transition:all var(--dur-fast) var(--ease);font-family:inherit}
+.q-item .q-btn:hover{color:var(--fg);border-color:var(--line3);background:var(--acc-soft)}
+.q-item .q-btn.fix{color:var(--ok);border-color:rgba(34,197,94,.30)}
+.q-item .q-btn.fix:hover{background:rgba(34,197,94,.08);color:var(--ok)}
+.q-item .q-fix{display:none;padding:9px 13px;border-top:1px solid var(--line);font-size:12.5px;color:var(--dim);line-height:1.6}
+.q-item.open .q-fix{display:block}
+.q-item .q-fix b{color:var(--acc)}
+.q-score-bar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.q-score-num{font-size:34px;font-weight:700;letter-spacing:.02em;line-height:1}
+.q-score-num.bad{color:var(--danger)}.q-score-num.mid{color:var(--warn)}.q-score-num.good{color:var(--ok)}
+.q-score-track{flex:1;height:10px;border-radius:5px;background:var(--card3);overflow:hidden}
+.q-score-fill{height:100%;border-radius:5px;transition:width .6s var(--ease);background:linear-gradient(90deg,var(--danger),var(--warn) 55%,var(--ok))}
+.q-score-lv{font-size:12.5px;color:var(--dim)}
+
+/* Section reader */
+.pv-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:11px}
+.pv-tab{background:transparent;border:1px solid var(--line2);color:var(--dim);border-radius:999px;padding:5px 14px;font-size:12px;cursor:pointer;font-family:inherit;transition:all var(--dur-fast) var(--ease)}
+.pv-tab:hover{border-color:var(--line3);color:var(--fg);background:var(--acc-soft)}
+.pv-tab.on{background:var(--brand);color:#fff;border-color:transparent;font-weight:600}
+.pv-tab .cnt{opacity:.7;font-size:10.5px;margin-left:5px}
+/* 可视化定位: 命中问题所在块的高亮标注(琥珀色, 清晰但不刺眼) */
+.pv-hit{background:rgba(245,158,11,.12);box-shadow:inset 4px 0 0 var(--warn);border-radius:6px;padding:6px 12px;animation:pvPulse 2s var(--ease) 2;position:relative}
+.pv-hit::before{content:"";position:absolute;left:-4px;top:0;bottom:0;width:4px;background:var(--warn);border-radius:4px 0 0 4px;animation:pvBar 2s var(--ease) infinite}
+.pv-hit:hover{background:rgba(245,158,11,.18)}
+@keyframes pvPulse{0%,100%{background:rgba(245,158,11,.12)}50%{background:rgba(245,158,11,.22)}}
+@keyframes pvBar{0%,100%{opacity:.6}50%{opacity:1}}
+/* 定位横幅: 显示当前定位的文件/行号 */
+.pv-locate-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:var(--r-md);margin-bottom:12px;font-size:13px}
+.pv-locate-banner .pv-tag{background:var(--warn);color:#fff;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700;flex:none}
+.pv-locate-banner .pv-info{color:var(--dim);flex:1}
+.pv-locate-banner .pv-info b{color:var(--fg)}
+body.dark .pv-hit{background:rgba(247,173,49,.10);box-shadow:inset 4px 0 0 var(--warn)}
+body.dark .pv-hit:hover{background:rgba(247,173,49,.16)}
+body.dark .pv-locate-banner{background:rgba(247,173,49,.06);border-color:rgba(247,173,49,.20)}
+
+/* ═══════════ Toast ═══════════ */
+#toast-wrap{position:fixed;top:66px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:99}
+.toast{
+  padding:11px 16px;border-radius:var(--r-md);font-size:13px;color:var(--fg);min-width:220px;max-width:380px;
+  border:1px solid var(--line2);box-shadow:0 4px 12px rgba(0,0,0,.08);
+  background:var(--card);animation:toastIn .2s var(--ease);
+  display:flex;align-items:center;gap:9px;
+}
+.toast>span:first-child{display:inline-flex;font-size:14px}
+.toast.ok{border-color:rgba(34,197,94,.35)}
+.toast.ok>span:first-child{color:var(--ok)}
+.toast.err{border-color:rgba(239,68,68,.35)}
+.toast.err>span:first-child{color:var(--danger)}
+.toast.warn{border-color:rgba(245,158,11,.35)}
+.toast.warn>span:first-child{color:var(--warn)}
+.toast.out{animation:toastOut .25s var(--ease) forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(24px)}}
+
+/* ═══════════ Dark Theme (body.dark) ═══════════ */
+body.dark{
+  --bg:#151517;--bg2:#151517;--panel:#1f1f1f;--card:#2c2c2e;--card2:#272729;--card3:#353537;
+  --line:rgba(255,255,255,.06);--line2:rgba(255,255,255,.12);--line3:rgba(255,255,255,.16);
+  --fg:#f9fafb;--dim:#81858c;--dim2:#ad9fb8;
+  --acc:#679efe;--acc2:#8ab0fe;--acc-soft:rgba(255,255,255,.08);--acc-soft2:rgba(255,255,255,.14);
+  --ok:#4ed97e;--warn:#f7ad31;--danger:#f25a5a;--violet:#bc8cff;
+  --brand:#f9fafb;--brand-hover:#e0e1e3;
+  --shadow:0 1px 3px rgba(0,0,0,.20);--shadow-sm:none;
+  --ok-soft:rgba(78,217,126,.12);--warn-soft:rgba(247,173,49,.12);--danger-soft:rgba(242,90,90,.14);--violet-soft:rgba(188,140,255,.14);
+  --shadow-md:0 4px 16px rgba(0,0,0,.35);
+}
+body.dark{background:var(--bg)}
+body.dark .sidebar{background:var(--panel);border-right-color:var(--line)}
+body.dark .logo{color:var(--fg);border-bottom-color:var(--line)}
+body.dark .card{background:var(--card);border-color:var(--line)}
+body.dark .card h2{color:var(--fg)}
+body.dark .card h2 .hico{color:var(--acc)}
+body.dark input,body.dark select,body.dark textarea{background:var(--card2);border-color:var(--line2);color:var(--fg)}
+body.dark input::placeholder,body.dark textarea::placeholder{color:var(--dim2)}
+body.dark input:focus,body.dark select:focus,body.dark textarea:focus{background:var(--card2)}
+body.dark pre{background:var(--card2);border-color:var(--line);color:var(--fg)}
+body.dark .proj,body.dark .skill,body.dark .pl-row{background:var(--card)}
+body.dark .proj:hover,body.dark .skill:hover,body.dark .pl-row:hover{border-color:var(--line2);background:var(--card2)}
+body.dark .nav.active{background:var(--acc-soft2);color:var(--fg)}
+body.dark .nav.active::before{background:var(--acc)}
+body.dark .nav:hover{background:var(--acc-soft)}
+body.dark .md-preview h1,body.dark .md-preview h2,body.dark .md-preview h3,body.dark .md-preview h4{color:var(--fg)}
+body.dark .md-preview pre{background:var(--card2);color:var(--fg)}
+body.dark th{background:var(--card3);color:var(--dim)}
+body.dark .seg:not(.done):not(.cur){background:var(--card3)}
+body.dark .ck:hover{background:var(--acc-soft)}
+body.dark .ck .dot{border-color:var(--line2)}
+body.dark .mini-bar{background:var(--card3)}
+body.dark .toast{background:var(--card);border-color:var(--line2)}
+body.dark .stat{background:var(--card)}
+body.dark .empty{color:var(--dim2)}
+body.dark .fileitem{color:var(--dim)}
+body.dark .pl-seg:not(.done):not(.cur){background:var(--card3)}
+body.dark .pv-tab{background:var(--card2)}
+body.dark tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+body.dark .guide{background:linear-gradient(135deg,rgba(103,158,254,.06),rgba(103,158,254,.02))}
+body.dark .guide-head:hover{background:rgba(103,158,254,.06)}
+body.dark .gs{background:var(--card);border-color:var(--line)}
+
+/* ═══════════ Responsive ═══════════ */
+@media(max-width:1180px){.stats{grid-template-columns:repeat(2,1fr)}.proj-grid{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+@media(max-width:900px){
+  .sidebar{width:64px;padding:14px 8px}
+  .logo{font-size:0;padding:0;text-align:center}
+  .logo small{display:none}
+  .nav{justify-content:center;padding:10px 6px}
+  .nav .txt,.nav-group,.side-foot .txt{display:none}
+  .nav .ico{width:auto}
+  main{padding:18px 16px}
+  .grid2,.grid2-3{grid-template-columns:1fr}
+  .topbar{padding:0 18px}
+}
+
+/* ═══════════ Tier-2 视觉升级: 卡片阴影 / 按钮分级 / 徽章 / 时间线 / 模态 ═══════════ */
+.card,.stat,.proj{box-shadow:var(--shadow)}
+.card:hover{box-shadow:var(--shadow-md)}
+button.primary{background:var(--acc);color:#fff}
+button.primary:hover{background:var(--acc2)}
+.badge.dim{background:var(--card3);color:var(--dim)}
+.badge.p0{background:var(--danger-soft);color:var(--danger)}
+.badge.p1{background:var(--warn-soft);color:var(--warn)}
+.badge.p2{background:var(--card3);color:var(--dim)}
+.badge.pass{background:var(--ok-soft);color:var(--ok)}
+.notice-bar{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border-radius:var(--r-md);border:1px solid rgba(245,158,11,.30);background:var(--warn-soft);font-size:13px;margin-bottom:14px;color:var(--fg);line-height:1.6}
+.notice-bar.hidden{display:none}
+.notice-bar .nb-ico{color:var(--warn);flex:none;display:inline-flex;margin-top:2px}
+.notice-bar .nb-ico svg{width:16px;height:16px}
+.notice-bar a{color:var(--acc);cursor:pointer;font-weight:600}
+.notice-bar a:hover{text-decoration:underline}
+.fig-thumb{width:56px;height:56px;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line2);background:var(--card2);cursor:zoom-in;display:block}
+.tl-track{display:flex;align-items:flex-start;margin:12px 0 4px}
+.tl-node{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;text-align:center;padding:0 4px;min-width:0}
+.tl-node::before{content:"";position:absolute;top:12px;left:-50%;width:100%;height:2px;background:var(--line2)}
+.tl-node:first-child::before{display:none}
+.tl-node.done::before{background:var(--ok)}
+.tl-node.cur::before{background:var(--acc)}
+.tl-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--line3);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--dim2);position:relative;z-index:1;transition:all var(--dur) var(--ease)}
+.tl-node.done .tl-dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.tl-node.cur .tl-dot{border-color:var(--acc);color:var(--acc);animation:tlPulse 1.8s var(--ease) infinite}
+@keyframes tlPulse{0%,100%{box-shadow:0 0 0 0 rgba(86,127,254,.35)}50%{box-shadow:0 0 0 8px rgba(86,127,254,0)}}
+.tl-name{font-size:12px;font-weight:600;color:var(--dim);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-node.done .tl-name{color:var(--ok)}
+.tl-node.cur .tl-name{color:var(--acc)}
+.pipe-logs{margin-top:12px;max-height:180px;overflow-y:auto;background:var(--card2);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-family:var(--font-code);font-size:11.5px;line-height:1.7;color:var(--dim)}
+.pipe-logs .pl-line{white-space:pre-wrap;word-break:break-all}
+.pipe-logs .pl-line:last-child{color:var(--fg);font-weight:600}
+.sev-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.sev-card{border-radius:var(--r-md);padding:12px 16px;display:flex;flex-direction:column;gap:2px}
+.sev-card .n{font-size:24px;font-weight:700;line-height:1.1}
+.sev-card .l{font-size:11.5px;opacity:.85;letter-spacing:.02em}
+.sev-card.p0{background:var(--danger-soft);color:var(--danger)}
+.sev-card.p1{background:var(--warn-soft);color:var(--warn)}
+.sev-card.p2{background:var(--card3);color:var(--dim)}
+.trend-wrap{margin:10px 0 4px}
+.trend-svg{width:100%;height:100px;display:block}
+.qc-item{border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:6px;background:var(--card);overflow:hidden}
+.qc-item .qc-head{display:flex;align-items:center;gap:9px;padding:8px 12px;font-size:12.5px;cursor:pointer;transition:background var(--dur-fast) var(--ease)}
+.qc-item .qc-head:hover{background:var(--acc-soft)}
+.qc-item .qc-body{display:none;padding:9px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--dim)}
+.qc-item.open .qc-body{display:block}
+.modal-mask{position:fixed;inset:0;background:rgba(15,17,21,.45);display:none;align-items:center;justify-content:center;z-index:120;padding:20px}
+.modal-mask.open{display:flex}
+.modal-mask .modal{margin:0;animation:fadeUp .18s var(--ease)}
+body.dark .modal-mask{background:rgba(0,0,0,.6)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Paper Workbench<small>自动论文工作台 · 桌面版</small></div>
+    <nav>
+      <button class="nav active" data-view="projects" onclick="switchView('projects')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span class="txt">项目工作台</span></button>
+      <button class="nav" data-view="visual" onclick="switchView('visual')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span class="txt">可视化预览</span></button>
+      <button class="nav" data-view="figures" onclick="switchView('figures')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span><span class="txt">图表管理</span></button>
+      <button class="nav" data-view="sci-figure" onclick="switchView('sci-figure')"><span class="ico">✦</span><span class="txt">AI 科研绘图</span></button>
+      <button class="nav" data-view="figureforge" onclick="switchView('figureforge')"><span class="ico">✎</span><span class="txt">FigureForge</span></button>
+      <button class="nav" data-view="literature" onclick="switchView('literature')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="txt">文献工具</span></button>
+      <button class="nav" data-view="data" onclick="switchView('data')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="txt">数据分析</span></button>
+      <button class="nav" data-view="toolbox" onclick="switchView('toolbox')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="txt">工具箱</span></button>
+      <button class="nav" data-view="ai" onclick="switchView('ai')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2.5"/><path d="M12 7V4"/><circle cx="12" cy="3" r="1"/><circle cx="9" cy="12.5" r="1"/><circle cx="15" cy="12.5" r="1"/><path d="M9.5 16.5h5"/><path d="M1.5 11v4M22.5 11v4"/></svg></span><span class="txt">AI 助手</span></button>
+      <button class="nav" data-view="skills" onclick="switchView('skills')"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg></span><span class="txt">技能管理</span></button>
+    </nav>
+    <div class="side-foot">
+      <span class="txt"><span class="dot"></span>本地服务 · 127.0.0.1:8123</span>
+      <span class="txt" style="opacity:.55">引擎 ~/.dsh/papers/workbench · v2</span>
+    </div>
+  </aside>
+
+  <div class="right">
+    <div class="topbar">
+      <div id="pageTitle"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>项目工作台<small id="pageSub"></small></div>
+      <div class="topbar-right">
+        <span class="svc"><span class="dot"></span>本地服务在线</span>
+        <button class="ghost" style="padding:7px 14px" onclick="toggleTheme()">主题</button>
+      </div>
+    </div>
+
+    <main>
+      <!-- 项目工作台 -->
+      <section id="view-projects" class="view active">
+        <div class="stats" id="statCards"></div>
+
+        <div class="guide" id="quickGuide">
+          <div class="guide-head" onclick="document.getElementById('quickGuide').classList.toggle('open')">
+            <span class="gh-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px"><path d="M12 2L2 7v6c0 5 4 9 10 9s10-4 10-9V7l-10-5z"/><polyline points="9 12 11 14 15 10"/></svg></span>
+            <span class="gh-title">快速入门</span>
+            <span class="gh-sub">第一次使用? 按这 4 步走</span>
+            <span class="gh-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px;height:14px"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="guide-body">
+            <div class="guide-steps">
+              <div class="gs"><span class="gs-num">1</span><span class="gs-txt"><b>创建项目</b>在下方"新建论文项目"输入研究方向，点击 <code>创建项目</code>。也可先点 <code>推荐期刊</code> 获取候选列表。</span></div>
+              <div class="gs"><span class="gs-num">2</span><span class="gs-txt"><b>完成检查点</b>点击项目行进入详情，在"当前阶段检查点"中按顺序完成每项。点 <code>AI 生成</code> 可自动产出对应文件，完成后点击条目勾选。</span></div>
+              <div class="gs"><span class="gs-num">3</span><span class="gs-txt"><b>质量检查与定位</b>点击 <code>运行质量检查</code> 查看问题清单。每条问题右侧有 <code>定位</code> 按钮，点击直接跳转到稿件中问题所在段落。</span></div>
+              <div class="gs"><span class="gs-num">4</span><span class="gs-txt"><b>推进与预览</b>完成当前阶段所有检查点后，点 <code>推进到下一阶段</code>。随时到"可视化预览"查看稿件效果和进度。AI 助手中可委托 DSH Agent 执行复杂任务。</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="pipelineCard">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>项目总览 <span class="hint" id="projCount"></span> <span class="hint">每个项目的阶段进度 · 质量分 · 待处理问题,点击行查看详情</span></h2>
+          <div id="pipelineList"><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>加载中…</div></div>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>新建论文项目</h2>
+          <div class="row">
+            <input type="text" id="topic" placeholder="研究方向，例如：大语言模型多智能体协作机制研究" style="flex:1;min-width:280px">
+            <input type="text" id="journal" placeholder="目标期刊（可留空，自动推荐）" style="flex:0 0 240px">
+            <select id="paperType" style="width:140px">
+              <option value="article">论文</option>
+              <option value="review">综述</option>
+              <option value="thesis">毕业论文</option>
+              <option value="letter">短文</option>
+            </select>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="btnInit" onclick="doInit()">创建项目</button>
+            <button class="ghost" onclick="doRecommend()">推荐期刊</button>
+            <span class="sub" style="margin-bottom:0;margin-left:8px">输入方向后点「创建项目」，或先点「推荐期刊」获取候选列表</span>
+          </div>
+          <pre id="initOut" class="hidden"></pre>
+        </div>
+      </section>
+
+      <!-- 项目详情 -->
+      <section id="view-detail" class="view">
+        <div style="margin-bottom:16px">
+          <button onclick="switchView('projects')" style="background:transparent;border:1px solid var(--line2);color:var(--dim);padding:7px 16px;border-radius:var(--r-sm);font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all var(--dur-fast) var(--ease)" onmouseover="this.style.borderColor='var(--line3)';this.style.color='var(--fg)';this.style.background='var(--acc-soft)'" onmouseout="this.style.borderColor='var(--line2)';this.style.color='var(--dim)';this.style.background='transparent'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px"><polyline points="15 18 9 12 15 6"/></svg>返回项目列表</button>
+        </div>
+        <div id="detail">
+          <div class="card">
+            <h2><span id="dTitle" class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span id="dTitleText">—</span></h2>
+            <div class="bar" id="stageBar"></div>
+            <div class="sub" style="margin-top:6px;margin-bottom:0" id="stageHint">先完成下方检查点，再推进到下一阶段</div>
+            <div class="row" style="margin-top:14px">
+              <button onclick="doCmd('next')" title="查看引擎建议的下一步行动">下一步做什么</button>
+              <button onclick="doStage()" title="完成当前阶段所有检查点后，推进到下一个阶段">推进到下一阶段</button>
+              <button class="warn" onclick="doStage(true)" title="跳过检查点强制推进（不推荐）">强制推进</button>
+              <button class="ok" onclick="doReviewBook()" title="生成审查任务工作簿（Markdown）">生成审查工作簿</button>
+              <button class="ghost" onclick="doReviewAuto()" title="自动执行引用核验、统计审计等">半自动审查</button>
+              <button class="ghost" onclick="doCmd('doctor')" title="诊断项目状态和缺失文件">健康诊断</button>
+              <button class="ghost" onclick="doCmd('summary')" title="生成项目摘要">汇总</button>
+              <button class="ghost" onclick="openDir()" title="在文件管理器中打开项目目录">打开项目目录</button>
+            </div>
+            <pre id="cmdOut" class="hidden"></pre>
+          </div>
+
+          <div class="card" id="genCard">
+            <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>分批生成 <span class="hint">契约先行 / 段级门禁 / 表格程序化 / 摘要后置</span></h2>
+            <div id="genBox"><div class="empty">选择项目后显示</div></div>
+          </div>
+
+          <div class="card" id="pipeCard">
+            <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>流水线进度 <span class="hint">六阶段时间线 · 停留本页时每 3 秒自动刷新</span></h2>
+            <div id="pipeTimeline"><div class="empty">选择项目后显示</div></div>
+          </div>
+
+          <div class="card">
+            <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>质量诊断 <span class="hint">运行全套质量门禁,逐条定位问题与修复方案</span></h2>
+            <div class="row" style="margin-bottom:6px">
+              <button class="danger" onclick="runQuality()">运行质量检查</button>
+              <span class="sub" style="margin-bottom:0" id="qStatus"></span>
+            </div>
+            <div id="qualityBox"><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>点击「运行质量检查」查看问题清单与修复建议</div></div>
+          </div>
+
+          <div class="card">
+            <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>质量历史与 QC 明细 <span class="hint">P0/P1/P2 统计 · 分数趋势 · 点击条目展开明细</span></h2>
+            <div id="historyBox"><div class="empty">选择项目后显示</div></div>
+          </div>
+
+          <div class="card">
+            <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>项目信息收集 <span class="hint">先问清楚再搭框架</span></h2>
+            <textarea id="intakeText" placeholder="请填写：研究问题/背景、具体做了什么（实验/方法/数据）、主要发现、创新点/贡献、目标期刊、参考文献要求等。&#10;这些信息会传给 AI，用于生成更贴合实际的框架和初稿。"></textarea>
+            <div class="row" style="margin-top:10px">
+              <button class="ok" onclick="saveIntake()">保存项目信息</button>
+              <button class="ghost" onclick="loadIntake()">重新加载</button>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="card" style="margin-bottom:18px">
+              <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>当前阶段检查点 <span class="hint">按顺序完成, 绿色为下一步</span></h2>
+              <div id="checkpoints"><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>选择项目后显示</div></div>
+            </div>
+            <div class="card" style="margin-bottom:18px">
+              <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>产物文件 <span class="hint">点击文件名查看内容</span></h2>
+              <div id="files"><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></span>选择项目后显示</div></div>
+              <pre id="fileOut" class="hidden"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 可视化预览 -->
+      <section id="view-visual" class="view">
+        <h1>可视化预览 <small>进度 · 图表 · 稿件预览，不用导出也能看</small></h1>
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>选择项目</h2>
+          <div class="row">
+            <select id="visProject" style="flex:1;min-width:240px" onchange="loadVisual()"></select>
+            <button class="ok" onclick="loadVisual()">加载预览</button>
+          </div>
+          <div class="sub" style="margin-top:8px;margin-bottom:0">选择项目后自动加载进度、图表和稿件预览。在质量检查中点「定位」可直接跳转到稿件中问题所在段落。</div>
+        </div>
+        <div id="visProgress" class="hidden"></div>
+        <div id="visCharts" class="hidden"></div>
+        <div id="visPreview" class="hidden"></div>
+        <div id="visEmpty" class="card hidden"><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>请先选择项目并点击「加载预览」</div></div>
+      </section>
+
+      <!-- 图表管理 -->
+      <section id="view-figures" class="view">
+        <h1>图表管理 <small>图表清单 · 生成路线 · 一键生成 · 重绘 · 上传替换</small></h1>
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>选择项目</h2>
+          <div class="row">
+            <select id="figProject" style="flex:1;min-width:240px" onchange="loadFigures()"></select>
+            <button class="ghost" onclick="loadFigures()">刷新清单</button>
+          </div>
+          <div class="sub" style="margin-top:8px;margin-bottom:0">图表清单来自项目图规划（framework 阶段 figures.md）；「路线」为每张图判定的生成方式（data 数据绘图 / imagegen AI 制图 / text 文本图表）。</div>
+        </div>
+        <div id="figCfgBar" class="notice-bar hidden">
+          <span class="nb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+          <span>图片生成 API 尚未配置 — <b>imagegen</b> 路线的图将失败或降级。请先到 <a onclick="goSfCfg()">工具箱 · 科研绘图 · API 设置</a> 填写 Base URL / Model / API Key。</span>
+        </div>
+        <div class="card hidden" id="figOpsCard">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>生成与替换 <span class="hint">勾选行选中重绘目标；上传替换作用于第一个勾选项</span></h2>
+          <div class="row">
+            <button class="primary" onclick="figuresGenerate('auto', this)" title="只生成尚无产物的图">一键生成</button>
+            <button class="warn" onclick="figuresGenerate('all', this)" title="强制重绘全部图">强制重绘全部</button>
+            <button class="ghost" onclick="figuresGenerate('selected', this)">选中重绘</button>
+            <button class="ghost" onclick="document.getElementById('figUploadInput').click()">上传替换</button>
+            <input type="file" id="figUploadInput" accept="image/*" class="hidden" onchange="figuresUploadFile(this)">
+          </div>
+          <div id="figGenSummary"></div>
+        </div>
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>图表清单 <span class="hint" id="figCount"></span></h2>
+          <div id="figTableBox"><div class="empty">请先选择项目</div></div>
+        </div>
+      </section>
+
+      <!-- 技能管理 -->
+      <section id="view-skills" class="view">
+        <h1>技能管理 <small>管控放入 ~/.dsh/skills 的技能</small></h1>
+        <div class="card">
+          <div class="row">
+            <input type="text" id="skillSearch" placeholder="搜索技能名称或描述…" oninput="renderSkills()" style="flex:1">
+            <button class="ghost" onclick="loadSkills()">刷新</button>
+          </div>
+          <div id="skillList" style="margin-top:14px"><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>加载中…</div></div>
+        </div>
+      </section>
+
+      <!-- 数据分析 -->
+      <section id="view-data" class="view">
+        <h1>数据分析与图表 <small>粘贴 CSV/JSON，生成统计与出版级图表</small></h1>
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>数据源</h2>
+          <div class="row">
+            <select id="dataProject" style="min-width:220px"></select>
+            <input type="text" id="dataFilename" value="data.csv" placeholder="文件名，如 data.csv / data.json" style="flex:1">
+          </div>
+          <textarea id="dataContent" placeholder="粘贴 CSV 或 JSON 数据…&#10;CSV 示例：&#10;year,sales&#10;2020,100&#10;2021,150&#10;2022,130"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button onclick="parseColumns()">解析列名</button>
+            <span class="sub" id="dataColumnsInfo" style="margin-bottom:0"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"></span>图表配置</h2>
+          <div class="row">
+            <select id="chartType">
+              <option value="bar">柱状图 Bar</option>
+              <option value="line">折线图 Line</option>
+              <option value="scatter">散点图 Scatter</option>
+              <option value="pie">饼图 Pie</option>
+              <option value="box">箱线图 Box</option>
+              <option value="violin">小提琴图 Violin</option>
+              <option value="hist">直方图 Histogram</option>
+              <option value="area">面积图 Area</option>
+              <option value="heatmap">热力图 Heatmap</option>
+            </select>
+            <select id="chartX"><option value="">X / 类别列</option></select>
+            <select id="chartY"><option value="">Y / 数值列</option></select>
+            <input type="text" id="chartTitle" placeholder="图表标题（可选）" style="flex:1">
+            <button class="ok" onclick="generateChart()">生成图表</button>
+          </div>
+          <div id="chartResult"></div>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg></span>科研表格生成</h2>
+          <div class="row">
+            <select id="tableType">
+              <option value="desc">描述统计表 Descriptive</option>
+              <option value="comparison">对比表 Comparison</option>
+              <option value="grouped">分组汇总表 Grouped Summary</option>
+              <option value="summary">数据摘要表 Data Summary</option>
+            </select>
+            <select id="tableGroupCol"><option value="">分组列（可选）</option></select>
+            <input type="text" id="tableTitle" placeholder="表格标题，如 Table 1. ..." style="flex:1">
+            <button class="ok" onclick="generateTable()">生成表格</button>
+          </div>
+          <div id="tableResult"></div>
+        </div>
+      </section>
+
+      <!-- 文献工具 -->
+      <section id="view-literature" class="view">
+        <h1>文献工具 <small>OpenAlex · arXiv · Crossref · PubMed · BibTeX 核验</small></h1>
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>多源文献检索</h2>
+          <div class="row">
+            <input type="text" id="litQuery" placeholder="研究方向 / 关键词" style="flex:1;min-width:220px">
+            <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:4px"><input type="checkbox" id="litOpenalex" checked style="accent-color:var(--acc)"> OpenAlex</label>
+            <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:4px"><input type="checkbox" id="litArxiv" checked style="accent-color:var(--acc)"> arXiv</label>
+            <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:4px"><input type="checkbox" id="litCrossref" checked style="accent-color:var(--acc)"> Crossref</label>
+            <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:4px"><input type="checkbox" id="litPubmed" checked style="accent-color:var(--acc)"> PubMed</label>
+            <input type="number" id="litLimit" value="10" min="1" max="50" style="width:76px">
+            <button onclick="searchLiterature()">搜索</button>
+          </div>
+          <pre id="litOut" class="hidden"></pre>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>BibTeX 引用核验 <span class="hint">Crossref 逐条校验</span></h2>
+          <textarea id="bibInput" placeholder="粘贴 BibTeX 条目，例如：&#10;@article{key,&#10;  title={...},&#10;  author={...},&#10;  year={2024},&#10;  doi={10.xxxx/xxxx}&#10;}"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button onclick="verifyBib()">核验引用</button>
+          </div>
+          <div id="bibOut"></div>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>自动生成参考文献清单 <span class="hint">检索 + 去重 + DOI 核验 + BibTeX</span></h2>
+          <div class="row">
+            <select id="refProject" style="min-width:220px"></select>
+            <input type="text" id="refQuery" placeholder="研究方向 / 关键词" style="flex:1">
+            <input type="number" id="refLimit" value="30" min="1" max="100" style="width:86px">
+            <button class="ok" onclick="buildRefs()">检索并生成</button>
+          </div>
+          <pre id="refBuildOut" class="hidden"></pre>
+        </div>
+      </section>
+
+      <section id="view-sci-figure" class="view"><h1>AI 科研绘图 <small>生成 · 版本迭代 · 参考图编辑</small></h1><div id="sciFigureMount"></div></section>
+      <section id="view-figureforge" class="view"><h1>FigureForge <small>科研图片编辑 · 本地保存 · 版本联动</small></h1><iframe id="figureforgeFrame" src="/figureforge/" style="width:100%;height:calc(100vh - 150px);min-height:720px;border:0;border-radius:var(--r-lg);background:#f8fafc"></iframe></section>
+
+      <!-- 工具箱 -->
+      <section id="view-toolbox" class="view">
+        <h1>工具箱 <small>导入稿件 · 数据自动填稿 · 导出 · 引用格式化 · 统计审计 · 原创性检查</small></h1>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>导入稿件 <span class="hint">docx / pdf → Markdown(python-docx / pdfplumber 直读,标题/表格/双栏自动识别)</span></h2>
+          <div class="row">
+            <input type="text" id="tbImportDocx" placeholder="文件路径，如 C:\projects\paper\draft.docx 或 论文.pdf" style="flex:1;min-width:260px">
+            <select id="tbImportTarget" style="width:200px"></select>
+            <button class="ok" onclick="tbImportDocx()">导入</button>
+          </div>
+          <div class="sub" style="margin-top:8px">按扩展名自动识别格式(.docx → imported_docx.md;.pdf → imported_pdf.md,文本+表格+双栏)。均不覆盖 main.md,可对比后替换。</div>
+          <pre id="tbImportOut" class="hidden"></pre>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>数据自动填稿 <span class="hint">Data → Results 图表 + 统计表</span></h2>
+          <div class="row">
+            <select id="tbProject" style="flex:1;min-width:240px"></select>
+            <button class="ok" onclick="tbFillResults()">扫描 data/ 并生成 Results</button>
+          </div>
+          <pre id="tbFillOut" class="hidden"></pre>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>导出 Word / PDF / LaTeX / HTML</h2>
+          <div class="row">
+            <select id="tbExportProject" style="flex:1;min-width:240px"></select>
+            <button class="primary" onclick="tbExportRun('docx', this)" title="导出 Word (.docx)">Word</button>
+            <button class="ghost" onclick="tbExportRun('pdf', this)" title="导出 PDF">PDF</button>
+            <button class="ghost" onclick="tbExportRun('latex', this)" title="导出 LaTeX (.tex)">LaTeX</button>
+            <button class="ghost" onclick="tbExportRun('html', this)" title="导出 HTML">HTML</button>
+            <select id="tbExportFormat" class="hidden">
+              <option value="docx">Word (.docx)</option>
+              <option value="pdf">PDF</option>
+              <option value="latex">LaTeX (.tex)</option>
+              <option value="html">HTML</option>
+            </select>
+          </div>
+          <div id="tbExportStatus" class="sub" style="margin-top:8px;margin-bottom:0"></div>
+          <pre id="tbExportOut" class="hidden"></pre>
+        </div>
+
+        <div class="card" id="sciFigureCard">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>科研绘图 <span class="hint">生成 · 版本迭代 · 参考图编辑</span></h2>
+          <div class="row" style="margin-bottom:10px">
+            <select id="sfProject" style="flex:1;min-width:240px" onchange="sfProjectChanged()"></select>
+            <span class="svc" id="sfApiStatus"><span class="dot" style="background:var(--warn)"></span>未配置图片 API</span>
+            <button class="ghost" onclick="sfToggleCfg()">API 设置</button>
+          </div>
+          <div class="sub" style="margin:-4px 0 10px">不选择项目时为独立模式，素材保存在工作台；选择项目后会保存到对应项目目录。</div>
+          <div id="sfCfg" class="hidden" style="margin-bottom:10px">
+            <div class="grid2">
+              <div><div class="sub" style="margin-bottom:6px">Base URL</div><input type="text" id="sfBaseUrl" placeholder="https://api.openai.com/v1" style="width:100%"></div>
+              <div><div class="sub" style="margin-bottom:6px">Model</div><input type="text" id="sfModel" placeholder="gpt-image-2" style="width:100%"></div>
+              <div><div class="sub" style="margin-bottom:6px">API Key <span id="sfKeyStatus"></span></div><input type="password" id="sfApiKey" placeholder="留空表示不修改" style="width:100%"></div>
+              <div><div class="sub" style="margin-bottom:6px">尺寸</div><select id="sfSize" style="width:100%"><option value="1024x1024">1024×1024 方图</option><option value="1024x1792">1024×1792 竖图</option><option value="1792x1024">1792×1024 横图</option></select></div>
+            </div>
+            <div class="row" style="margin-top:10px"><button onclick="sfSaveCfg()">保存 API 配置</button></div>
+          </div>
+          <div class="grid2" style="margin-bottom:10px">
+            <div><div class="sub" style="margin-bottom:6px">编辑模式</div><select id="sfMode" style="width:100%" onchange="sfModeChanged()"><option value="generate">新建图片</option><option value="edit_version">基于上一版本修改</option><option value="edit_reference">使用参考图编辑</option></select></div>
+            <div><div class="sub" style="margin-bottom:6px">素材名称 / ID</div><input type="text" id="sfAssetId" placeholder="如 fig1_pathway" style="width:100%" onblur="sfLoadVersions()"></div>
+            <div id="sfVersionWrap" class="hidden"><div class="sub" style="margin-bottom:6px">来源版本</div><select id="sfSourceVersion" style="width:100%"></select></div>
+            <div id="sfReferenceWrap" class="hidden"><div class="sub" style="margin-bottom:6px">参考图</div><select id="sfReferenceId" style="width:100%"></select></div>
+          </div>
+          <div id="sfReferenceUpload" class="hidden row" style="margin:-2px 0 10px"><input type="file" id="sfReferenceInput" accept="image/png,image/jpeg,image/webp" onchange="sfReferenceFileChanged()"><button class="ghost" onclick="sfUploadReference()">保存参考图</button><span id="sfReferenceStatus" class="sub">支持 PNG/JPG/WEBP，单张 ≤20MB</span></div>
+          <textarea id="sfPrompt" placeholder="描述要生成或修改的图，例如：在原图基础上，将右侧释放步骤改为膜融合步骤；保留其他结构、配色和布局。&#10;提示：领域越具体、风格词越明确，出图质量越高。"></textarea>
+          <div class="row" style="margin-top:10px">
+            <input type="text" id="sfName" placeholder="文件名（可选，如 fig1_pathway）" style="flex:1">
+            <button class="ok" onclick="generateSciFigure()">生成新版本</button>
+          </div>
+          <pre id="sfOut" class="hidden"></pre>
+          <div id="sfResult" style="margin-top:10px"></div>
+          <div id="sfHistory" style="margin-top:14px"></div>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>图片生成设置状态 <span class="hint">只读 · 掩码展示</span></h2>
+          <div id="imgSettingsBox"><span class="sub" style="margin:0">加载中…</span></div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>引用格式化 <span class="hint">Springer / AMA / APA</span></h2>
+            <textarea id="tbBib" placeholder="粘贴 BibTeX…"></textarea>
+            <div class="row" style="margin-top:10px">
+              <select id="tbRefStyle">
+                <option value="springer-numeric">Springer 数字制</option>
+                <option value="ama">AMA</option>
+                <option value="apa">APA</option>
+              </select>
+              <button onclick="tbFormatRefs()">格式化引用</button>
+            </div>
+            <pre id="tbRefOut" class="hidden"></pre>
+          </div>
+
+          <div class="card">
+            <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>统计报告审计 <span class="hint">均值缺 SD / p 值缺检验</span></h2>
+            <textarea id="tbStatsText" placeholder="粘贴稿件正文或 Results 段落…"></textarea>
+            <div class="row" style="margin-top:10px">
+              <button onclick="tbAuditStats()">审计统计报告</button>
+            </div>
+            <pre id="tbStatsOut" class="hidden"></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg></span>原创性 / 重复度检查 <span class="hint">本地 n-gram 对比</span></h2>
+          <textarea id="tbOrigText" placeholder="粘贴待检查文本…"></textarea>
+          <div class="row" style="margin-top:10px">
+            <input type="text" id="tbCorpus" placeholder="语料目录（默认项目目录）" style="flex:1">
+            <button onclick="tbOriginality()">检查</button>
+          </div>
+          <pre id="tbOrigOut" class="hidden"></pre>
+        </div>
+      </section>
+
+      <!-- AI 助手 -->
+      <section id="view-ai" class="view">
+        <h1>AI 助手 <small>OpenAI 兼容 API · 自动生成产物 · 自动核验</small></h1>
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span>API 配置</h2>
+          <div class="grid2">
+            <div>
+              <div class="sub" style="margin-bottom:6px">Base URL</div>
+              <input type="text" id="aiBaseUrl" placeholder="https://api.deepseek.com/v1" style="width:100%">
+            </div>
+            <div>
+              <div class="sub" style="margin-bottom:6px">Model</div>
+              <input type="text" id="aiModel" placeholder="deepseek-chat" style="width:100%">
+            </div>
+            <div>
+              <div class="sub" style="margin-bottom:6px">API Key <span id="aiKeyStatus" class="sub" style="margin-left:6px"></span></div>
+              <input type="password" id="aiApiKey" placeholder="留空表示不修改（可用环境变量 PAPER_WORKBENCH_API_KEY）" style="width:100%">
+            </div>
+            <div>
+              <div class="sub" style="margin-bottom:6px">Temperature</div>
+              <input type="number" id="aiTemp" step="0.1" min="0" max="2" value="0.7" style="width:100%">
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button onclick="saveAiSettings()">保存配置</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>自动生成当前阶段产物 <span class="hint">生成后自动核验占位符/章节</span></h2>
+          <div class="row">
+            <select id="aiProject" style="flex:1;min-width:240px"></select>
+            <select id="aiStage">
+              <option value="research">文献调研</option>
+              <option value="journal">期刊调研</option>
+              <option value="framework">框架搭建</option>
+              <option value="draft">数据接入与写作</option>
+              <option value="review">后期审查</option>
+              <option value="submit">投稿材料</option>
+            </select>
+            <button class="ok" onclick="aiAutoGenerate()">AI 生成产物</button>
+             <button class="warn" onclick="aiAutoCompleteStage()">AI 自动完成当前阶段</button>
+          </div>
+          <pre id="aiGenOut" class="hidden"></pre>
+        </div>
+
+        <div class="card">
+          <h2>DSH Agent 委托执行 <span class="hint">通过 Agent 技能系统深度执行论文任务</span></h2>
+          <div id="dshStatus" class="sub" style="margin-bottom:8px">检查中…</div>
+          <div class="row">
+            <select id="dshProject" style="flex:1;min-width:240px"></select>
+            <button class="ok" onclick="delegateToAgent()">委托 Agent 执行</button>
+          </div>
+          <textarea id="dshInstruction" placeholder="输入委托指令，例如：使用 paper-pipeline 技能推进当前项目的 framework 阶段；或：执行文献调研并生成 references.md"></textarea>
+          <pre id="dshOut" class="hidden"></pre>
+        </div>
+
+        <div class="card">
+          <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>自由对话 <span class="hint">AI 可自动调用工具箱</span></h2>
+          <textarea id="aiPrompt" placeholder="输入任务描述，例如：帮我检索 protoplast fusion 的相关文献并核验 DOI；或：分析这段数据的趋势…"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button onclick="sendChat()">发送给 AI</button>
+            <label style="font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer">
+              <input type="checkbox" id="aiTools" checked style="accent-color:var(--acc);width:15px;height:15px"> 工具箱模式（自动调用检索/门禁/统计/DOI 核验）
+            </label>
+          </div>
+          <pre id="aiChatOut" class="hidden"></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal-mask" id="forceMask">
+  <div class="card modal" style="width:min(500px,92vw)">
+    <h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>强制推进 <span class="hint">理由将随操作留痕</span></h2>
+    <div class="sub">即将<b>跳过检查点校验</b>推进到下一阶段，此操作不推荐，必须填写理由。</div>
+    <textarea id="forceReason" placeholder="请填写强制推进理由（必填，将留痕。例如：时间紧张，检查点内容已在外部完成…）"></textarea>
+    <div class="row" style="margin-top:12px;justify-content:flex-end">
+      <button class="ghost" onclick="closeForceModal()">取消</button>
+      <button class="danger" onclick="confirmForceModal()">确认强制推进</button>
+    </div>
+  </div>
+</div>
+<div class="modal-mask" id="figLightbox" onclick="this.classList.remove('open')">
+  <img id="figLightboxImg" alt="图表预览" style="max-width:88vw;max-height:88vh;border-radius:var(--r-md);box-shadow:0 12px 40px rgba(0,0,0,.35);background:#fff">
+</div>
+
+<div id="toast-wrap"></div>
+
+<script>
+const STAGES = ['research','journal','framework','draft','review','submit'];
+const STAGE_LABEL = {research:'文献调研',journal:'期刊调研',framework:'框架搭建',draft:'数据接入与写作',review:'后期审查',submit:'投稿材料'};
+const STAGE_ICON = {research:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',journal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',framework:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',draft:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',review:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',submit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>'};
+const VIEW_META = {
+  projects:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>','项目工作台','研究 → 期刊 → 框架 → 写作 → 审查 → 投稿'],
+  visual:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>','可视化预览','进度 · 图表 · 稿件预览，不用导出也能看'],
+  figures:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>','图表管理','图表清单 · 一键生成 · 重绘 · 上传替换'],
+  'sci-figure':['✦','AI 科研绘图','生成 · 版本迭代 · 参考图编辑'],
+  figureforge:['✎','FigureForge','科研图片编辑 · PNG/TIFF · 工程版本'],
+  skills:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>','技能管理','管控放入 ~/.dsh/skills 的技能'],
+  data:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>','数据分析','粘贴 CSV/JSON，生成统计与图表'],
+  literature:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>','文献工具','OpenAlex · arXiv · Crossref · PubMed · BibTeX'],
+  toolbox:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>','工具箱','导入稿件 · 填稿 · 导出 · 引用 · 统计 · 原创性'],
+  ai:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2.5"/><path d="M12 7V4"/><circle cx="12" cy="3" r="1"/><circle cx="9" cy="12.5" r="1"/><circle cx="15" cy="12.5" r="1"/><path d="M9.5 16.5h5"/><path d="M1.5 11v4M22.5 11v4"/></svg>','AI 助手','OpenAI 兼容 API · 自动生成产物'],
+  detail:['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>','项目详情','阶段检查 · 质量诊断 · AI 生成'],
+};
+let projects = [];
+let current = null;
+let detail = null;
+let skills = [];
+
+async function api(url, opts) {
+  const r = await fetch(url, opts);
+  return await r.json();
+}
+function toast(msg, type) {
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || 'ok');
+  el.innerHTML = '<span>' + (type === 'err' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' : type === 'warn' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>') + '</span><span>' + esc(msg) + '</span>';
+  wrap.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 2800);
+}
+function showPre(id, text, tone) {
+  const el = document.getElementById(id);
+  el.textContent = text || '';
+  el.classList.remove('hidden');
+  el.classList.remove('okout', 'errout');
+  if (tone === 'ok') el.classList.add('okout');
+  if (tone === 'err') el.classList.add('errout');
+}
+function hidePre(id) { document.getElementById(id).classList.add('hidden'); }
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function busy(btn, on) { if (btn) btn.classList.toggle('loading', on); }
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('wb-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+}
+(function(){ if (localStorage.getItem('wb-theme') === 'dark') document.body.classList.add('dark'); })();
+
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n.dataset.view === name));
+  const meta = VIEW_META[name] || ['','',''];
+  const pt = document.getElementById('pageTitle');
+  pt.innerHTML = '<span class="ico">' + meta[0] + '</span>' + meta[1] + '<small>' + meta[2] + '</small>';
+  if (name !== 'detail') stopPipelinePoll();  // 离开详情页即停流水线轮询(生命周期管理)
+  if (name === 'projects') loadProjects();
+  if (name === 'skills') loadSkills();
+  if (name === 'data') loadProjectOptions();
+  if (name === 'toolbox') { loadProjectOptions(); loadImageSettings(); }
+  if (name === 'sci-figure') { mountSciFigure(); loadProjectOptions(); sfLoadStatus(); loadImageSettings(); }
+  if (name === 'visual') { loadProjectOptions().then(autoLoadVisual); }
+  if (name === 'figures') { loadProjectOptions().then(autoLoadFigures); }
+  if (name === 'ai') { checkDshStatus(); loadAiSettings(); loadProjectOptions(); }
+  if (name === 'detail') { startPipelinePoll(); }
+}
+
+async function autoLoadVisual() {
+  if (window._locating) return; // qLocate 定位中, 跳过自动加载避免清掉定位参数
+  const sel = document.getElementById('visProject');
+  if (!sel || !sel.options.length) return;
+  // 自动选中最近更新的项目并加载预览(无需手动点按钮)
+  if (!sel.value) sel.selectedIndex = 1; // 第一个 option 是「选择项目」占位
+  if (sel.value) { loadVisual(); }
+  else {
+    const emptyBox = document.getElementById('visEmpty');
+    if (emptyBox) emptyBox.classList.remove('hidden');
+  }
+}
+
+// ── 项目工作台 ─────────────────────────────
+const TYPE_ICON = {article:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>', review:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>', thesis:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><polyline points="8.8 13.2 8 21 12 19 16 21 15.2 13.2"/><path d="M3.5 8h17"/></svg>', letter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'};
+const TYPE_LABEL = {article:'论文', review:'综述', thesis:'毕业论文', letter:'短文'};
+async function loadProjects() {
+  const d = await api('/api/dashboard');
+  projects = d.projects || [];
+  renderStats(projects);
+  renderPipeline();
+}
+
+const QTYPE_FIX = {
+  placeholder: '在稿件中替换占位符: [TBD]/[DATA REQUIRED] 填入真实内容, ___ 补数字或表意文字',
+  overclaim: '弱化该词: 如「first」改为「to our knowledge...」,「robust」补数据支撑或改「reproducible」',
+  stats: '为均值补 SD/IQR 与样本量; 或明确该数字来自综述引用(注明出处)',
+  figures_plan: '已支持一键修复: 自动在 framework/figures.md 补齐缺失的图规划占位; 也可手动补足(综述≥3图2表, 论文≥5图3表)',
+  figures_insert: '运行 python data2paper.py fill 自动插入图表, 或手动补齐 [此处插图]',
+  figure_legend: '在文末补 Figure Legends/Captions 章节, 每条图注自含信息',
+  tables_plan: '已支持一键修复: 自动在 framework/figures.md 补齐缺失的表规划占位; 也可手动补足数量',
+  references_count: '在 framework/references.md 补充文献至期刊要求下限(常见 80-120 条)',
+  references_recency: '在 framework/references.md 增补近 5 年文献, 提升占比至 ≥40%',
+  citations_missing: '正文采用编号引用 (1) [1-3] 格式, 与 References 节一一对应',
+  citations_out_of_range: '引用编号超出参考文献总量: 核对 References 数量或修正编号',
+  citations_uncited: '正文引用这些编号, 或从 References 删除未引条目',
+  data_availability: '写 Data Availability / 数据可用性声明; 综述无原始数据可写「不适用」',
+  economy_sections: '合并薄/重叠章节至 6-8 个顶层级, 如把某节并入相邻节',
+  economy_stub: '把过薄章节并入相邻章节, 或扩充内容至 120 单元以上',
+  narrative_abstract: '摘要补齐四要素: 问题→方法→结果→意义',
+  narrative_intro: '引言补「研究缺口」与「贡献预告」, 漏斗叙事',
+  narrative_intro_open: '引言首段先立大问题/任务背景, 再引入本文方案',
+  narrative_results: 'Results 每节给出数字/统计/图表引用, 让证据跟着叙述走',
+  narrative_discussion: 'Discussion 补解释性回扣(consistent with/表明) 与局限',
+  narrative_conclusion: '结论只收束已有论证, 不引新材料/新图表',
+  narrative_overload: '拆分含 4+ 转折词的长段(however/但是) 为单一任务段落',
+  narrative_repetition: '调整连续 3 句同词开头, 变换句首实词',
+  narrative_flow: '段落首句不用 Moreover/Furthermore/此外, 用内容连接',
+  narrative_voice: '统一语态(主动/被动), 全文一致',
+  narrative_figorder: '正文按图号顺序引用 Figure 1→2→3',
+  vague_compare: '对比句补具体数值/统计, 或注明数字在图/表中',
+  claim_no_evidence: '声称句就近挂数字/图表/引用作为证据锚',
+  process_leak: '删除「针对审稿/重新组织/previous draft」等写作过程语言(第四面墙)',
+  contribution_soften: '确认正文对应声称已软化(如限定检索范围), 或补足缺失证据',
+  ai_paragraph_sim: '重写相邻相似段落, 变换开头与论证路径',
+  ai_sentence_rhythm: '穿插长短句, 打破均匀句长节奏',
+  ai_info_density: '补充具体数字/事实锚点, 提高信息密度',
+  ai_connectives: '减少连接词堆砌, 直接陈述',
+  ai_dashes: '长破折号改为逗号/句号或括号',
+  missing_test: 'p 值旁注明检验方法(t-test/ANOVA 等)',
+  missing_sd: '均值旁补 SD/±; 或注明为综述引用值',
+  economy_missing: '补 manuscript/main.md 正文',
+  missing_manuscript: '补 manuscript/main.md 正文',
+  quality_ok: '无'
+};
+
+/* 可一键自动修复的问题类型 → 对应后端 qfix 动作 */
+const QTYPE_AUTOFIX = {
+  data_availability: 1,   // 自动追加 Data Availability 模板声明
+  figure_legend: 1,       // 自动追加 Figure Legends 章节模板
+  figures_insert: 1,      // 自动运行 data2paper fill 插入图表
+  figures_plan: 1,        // 自动补齐 framework/figures.md 缺失的图规划占位
+  tables_plan: 1,         // 自动补齐 framework/figures.md 缺失的表规划占位
+  citations_uncited: 1,   // 自动生成 refs_used.md 引用收窄清单
+  placeholder: 1,         // 定位并列出占位符行, 由用户替换(定位)
+};
+
+// 质量收敛趋势线: 把 quality-history.json 的打分序列画成迷你折线(零依赖 SVG)
+function qSpark(h) {
+  if (!h || h.length < 2) return '';
+  const W = 92, H = 22, P = 3;
+  const vals = h.map(x => (x.score == null ? 0 : x.score));
+  const min = Math.min.apply(null, vals.concat([0]));
+  const max = Math.max.apply(null, vals.concat([100]));
+  const span = Math.max(1, max - min);
+  const pts = vals.map((v, i) => {
+    const x = P + i * (W - 2 * P) / (vals.length - 1);
+    const y = H - P - (v - min) * (H - 2 * P) / span;
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  }).join(' ');
+  const last = vals[vals.length - 1];
+  const col = last >= 90 ? 'var(--ok)' : last >= 70 ? 'var(--warn)' : 'var(--danger)';
+  const f = h[0], l = h[h.length - 1];
+  const t0 = (f.ts || '').slice(5, 16).replace('T', ' ');
+  const title = `质量收敛 ${t0} ${f.score}分 → ${l.score}分 · 共${h.length}次质检`;
+  return `<svg class="q-spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function qBadge(p) {
+  const q = p.quality || {};
+  const s = q.score;
+  if (s === undefined || s === null) return '';
+  const cls = s >= 70 ? 'ok' : s >= 50 ? 'warn' : 'danger';
+  const label = `${s}分 ${esc(q.level || '')}`;
+  const i = p.issueCount || {};
+  const chips = [];
+  if (i.P0) chips.push(`<span class="q-chip p0">P0×${i.P0}</span>`);
+  if (i.P1) chips.push(`<span class="q-chip p1">P1×${i.P1}</span>`);
+  if (i.P2) chips.push(`<span class="q-chip p2">P2×${i.P2}</span>`);
+  return `<span class="badge ${cls}" style="cursor:default" title="${label}">${label}</span>${chips.join('')}${qSpark(q.history || [])}`;
+}
+
+function qSummaryHtml(p) {
+  const top = p.topIssues || [];
+  if (!top.length) return '';
+  return `<div class="q-summary">` + top.map(t =>
+    `<div class="qs-row"><span class="q-sev ${t.severity}">${t.severity}</span><span class="qs-msg">${esc(t.msg)}${t.line ? `<span class="qs-line">L${t.line}</span>` : ''}</span></div>`
+  ).join('') + `</div>`;
+}
+
+function renderPipeline() {
+  const box = document.getElementById('pipelineList');
+  if (!projects.length) { box.innerHTML = '<div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></span>暂无项目，先创建一个吧</div>'; return; }
+  box.innerHTML = projects.map(p => {
+    const idx = STAGES.indexOf(p.stage);
+    const segs = STAGES.map((s, i) => {
+      const cls = i < idx ? 'done' : i === idx ? 'cur' : 'pend';
+      return `<div class="pl-seg ${cls}" title="${esc(STAGE_LABEL[s])}"><span></span></div>`;
+    }).join('');
+    const pct = p.totalChecks ? Math.round(p.doneChecks / p.totalChecks * 100) : 0;
+    const act = idx >= 0 && idx < STAGES.length - 1
+      ? `<button class="ghost" onclick="event.stopPropagation();advanceProject('${encodeURIComponent(p.path)}', this)">推进 ▶</button>`
+      : `<span class="badge ok">已完成</span>`;
+    const health = (p.health || []).length ? `<span class="badge warn" title="${esc((p.health||[]).join('\n'))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${p.health.length} 异常</span>` : '';
+    return `<div class="pl-row" onclick="selectProject(decodeURIComponent('${encodeURIComponent(p.path)}'))">
+      <div class="pl-name"><span class="ico" style="font-size:16px;flex:none">${STAGE_ICON[p.stage] || ''}</span> <span title="${esc(p.path)}">${esc(p.topic)}</span>${health}</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${qBadge(p)}</div>
+      <div class="pl-segs" title="阶段进度">${segs}</div>
+      <div class="pl-pct ${pct===100?'hi':''}">${pct}%</div>
+      <div class="pl-act">${act}</div>
+    </div>
+    ${qSummaryHtml(p) ? `<div class="q-summary" style="margin:-4px 0 8px 14px">${qSummaryHtml(p)}</div>` : ''}`;
+  }).join('');
+}
+
+async function advanceProject(pathEnc, btn) {
+  const path = decodeURIComponent(pathEnc);
+  const p = projects.find(x => x.path === path);
+  if (!p) return;
+  const idx = STAGES.indexOf(p.stage);
+  if (idx < 0 || idx >= STAGES.length - 1) { toast('已是最后阶段', 'warn'); return; }
+  busy(btn, true);
+  try {
+    const d = await api('/api/cmd', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'stage', stage: STAGES[idx+1], dir: path }) });
+    const out = (d.output || d.error || '');
+    if (d.error || out.includes('')) {
+      const errLine = out.split('\n').find(l => l.includes('')) || out.split('\n')[0] || '无法推进（检查点未全勾或产物缺失）';
+      toast(errLine.replace(/^.*?()/, '$1').slice(0, 80), 'err');
+    } else {
+      toast('已推进 → ' + STAGE_LABEL[STAGES[idx+1]]);
+    }
+    await loadProjects();
+    if (current && current.path === path) await refreshDetail();
+  } finally { busy(btn, false); }
+}
+
+function renderStats(list) {
+  const total = list.length;
+  const active = list.filter(p => p.stage !== 'submit').length;
+  const done = list.filter(p => p.stage === 'submit').length;
+  const unhealthy = list.reduce((s, p) => s + (p.health || []).length, 0);
+  const cards = [
+    { n: total, l: '论文项目', i: '', c1: '#4d6bfe', c2: '#8f9dff' },
+    { n: active, l: '进行中', i: '', c1: '#d29922', c2: '#d29922' },
+    { n: done, l: '已完成', i: '', c1: '#3fb950', c2: '#3fb950' },
+    { n: unhealthy, l: '健康异常项', i: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', c1: '#f85149', c2: '#f85149' },
+  ];
+  document.getElementById('statCards').innerHTML = cards.map(c =>
+    `<div class="stat" style="--s-c1:${c.c1};--s-c2:${c.c2}">
+       <span class="sico">${c.i}</span>
+       <div class="snum">${c.n}</div>
+       <div class="slabel">${c.l}</div>
+       <div class="sbar"></div>
+     </div>`).join('');
+}
+
+async function loadVisual(projPath, file, line, kw) {
+  const enc = projPath || document.getElementById('visProject').value;
+  const progBox = document.getElementById('visProgress');
+  const chartBox = document.getElementById('visCharts');
+  const prevBox = document.getElementById('visPreview');
+  const emptyBox = document.getElementById('visEmpty');
+  if (!enc) {
+    ['visProgress','visCharts','visPreview'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    if (emptyBox) emptyBox.classList.remove('hidden');
+    return;
+  }
+  if (emptyBox) emptyBox.classList.add('hidden');
+  const path = decodeURIComponent(enc);
+  const rel = file || 'manuscript/main.md';
+  const [state, charts, preview] = await Promise.all([
+    api('/api/state?proj=' + encodeURIComponent(path)),
+    api('/api/charts?proj=' + encodeURIComponent(path)),
+    api('/api/preview?proj=' + encodeURIComponent(path) + '&file=' + encodeURIComponent(rel)),
+  ]);
+  if (state && !state.error) {
+    const idx = STAGES.indexOf(state.stage);
+    const total = Object.values(state.stages || {}).reduce((s, x) => s + ((x.items || []).length), 0);
+    const done = Object.values(state.stages || {}).reduce((s, x) => s + ((x.checked || []).length), 0);
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const stageInfo = state.stages && state.stages[state.stage];
+    const stageTotal = stageInfo ? stageInfo.items.length : 0;
+    const stageDone = stageInfo ? stageInfo.checked.length : 0;
+    progBox.innerHTML = `<div class="card"><h2><span class="hico">${STAGE_ICON[state.stage]||''}</span>${esc(state.topic)} <span class="hint">${esc(state.journal || '期刊待推荐')}</span></h2>
+      <div class="bar" style="margin-top:24px">${STAGES.map((s, i) => `<div class="seg ${i < idx ? 'done' : i === idx ? 'cur' : ''}"><span>${STAGE_LABEL[s]}</span></div>`).join('')}</div>
+      <div class="row" style="margin-top:22px;gap:16px">
+        <div style="text-align:center"><div style="font-size:28px;font-weight:700;color:${pct>=70?'var(--ok)':pct>=40?'var(--warn)':'var(--danger)'}">${pct}%</div><div class="sub" style="margin:0">总进度</div></div>
+        <div style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--acc)">${stageDone}/${stageTotal}</div><div class="sub" style="margin:0">当前阶段</div></div>
+        <div style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--violet)">${done}/${total}</div><div class="sub" style="margin:0">全检查点</div></div>
+      </div></div>`;
+  } else {
+    progBox.innerHTML = '<div class="card"><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>项目状态读取失败</div></div>';
+  }
+  progBox.classList.remove('hidden');
+
+  const chartsList = charts.charts || [];
+  if (chartsList.length) {
+    chartBox.innerHTML = `<div class="card"><h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>自动生成图表（${chartsList.length}）</h2><div class="grid2">${chartsList.map(c => `<div><img class="chart-img" src="${c.data_url}" alt="${esc(c.name)}"><div class="sub" style="text-align:center;margin-top:8px">${esc(c.name)}</div></div>`).join('')}</div></div>`;
+  } else {
+    chartBox.innerHTML = '<div class="card"><h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>自动生成图表</h2><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>暂无图表。放入数据后运行 data2paper fill 自动生成。</div></div>';
+  }
+  chartBox.classList.remove('hidden');
+
+  if (preview && preview.html) {
+    let pvHtml = preview.html;
+    // pypandoc 不可用时服务器返回 <pre> 包裹的原始 markdown, 改用前端渲染器
+    if (/^\s*<pre>/.test(pvHtml)) {
+      pvHtml = mdToHtml(decodeHtml(pvHtml.replace(/^\s*<pre>/, '').replace(/<\/pre>\s*$/, '')));
+    }
+    const sections = splitPreviewBySections(pvHtml);
+    window._pvSections = sections;
+    window._pvSourceBlocks = null;
+    window._pvLocateLine = line || null;
+    window._pvLocateKw = kw || null;
+    window._pvLocateFile = file || null;
+    // 定位模式: 请求源文本做块级行号映射
+    if (line || kw) {
+      const src = await api('/api/file?proj=' + encodeURIComponent(path) + '&rel=' + encodeURIComponent(rel));
+      if (src && src.text) window._pvSourceBlocks = splitSourceBlocks(src.text);
+    }
+    prevBox.innerHTML = `<div class="card"><h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></span>稿件分节阅读 <span class="hint">${sections.length} 个章节</span></h2>
+      <div class="pv-tabs" id="pvTabs"></div>
+      <div class="md-preview" id="pvBody"></div></div>`;
+    renderPreviewTab(0);
+  } else {
+    prevBox.innerHTML = '<div class="card"><h2><span class="hico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></span>稿件分节阅读</h2><div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>暂无稿件或无法预览。</div></div>';
+  }
+  prevBox.classList.remove('hidden');
+}
+
+/* ── 纯前端 Markdown 渲染器(pypandoc 不可用时的兜底) ── */
+function decodeHtml(s) {
+  const t = document.createElement('textarea');
+  t.innerHTML = s;
+  return t.value;
+}
+function mdInline(s) {
+  return s
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)[^)]*\)/g, '<img src="$2" alt="$1">')
+    .replace(/\[([^\]]+)\]\(([^)\s]+)[^)]*\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/`([^`]+)`/g, (m, c) => '<code>' + c + '</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+}
+function mdToHtml(md) {
+  const lines = md.split('\n');
+  const out = [];
+  let i = 0, listType = null, para = [];
+  const flushPara = () => { if (para.length) { out.push('<p>' + mdInline(para.join(' ')) + '</p>'); para = []; } };
+  const closeList = () => { if (listType) { out.push('</' + listType + '>'); listType = null; } };
+  while (i < lines.length) {
+    const raw = lines[i];
+    const line = raw.trimEnd();
+    const t = line.trim();
+    // fenced code
+    if (/^```/.test(t)) {
+      flushPara(); closeList();
+      const lang = t.slice(3).trim();
+      const buf = []; i++;
+      while (i < lines.length && !/^```/.test(lines[i].trim())) { buf.push(lines[i]); i++; }
+      i++; // skip closing
+      out.push('<pre' + (lang ? ' data-lang="' + esc(lang) + '"' : '') + '>' + esc(buf.join('\n')) + '</pre>');
+      continue;
+    }
+    const h = t.match(/^(#{1,6})\s+(.*)$/);
+    if (h) { flushPara(); closeList(); out.push('<h' + h[1].length + '>' + mdInline(esc(h[2])) + '</h' + h[1].length + '>'); i++; continue; }
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(t)) { flushPara(); closeList(); out.push('<hr>'); i++; continue; }
+    if (/^>\s?/.test(t)) {
+      flushPara(); closeList();
+      const buf = [];
+      while (i < lines.length && /^>\s?/.test(lines[i].trim())) { buf.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+      out.push('<blockquote>' + mdInline(esc(buf.join(' '))) + '</blockquote>');
+      continue;
+    }
+    // table
+    if (t.includes('|') && i + 1 < lines.length && /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i + 1]) && lines[i + 1].includes('-')) {
+      flushPara(); closeList();
+      const parseRow = r => r.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const head = parseRow(t); i += 2;
+      const rows = [];
+      while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') { rows.push(parseRow(lines[i])); i++; }
+      out.push('<table><thead><tr>' + head.map(c => '<th>' + mdInline(esc(c)) + '</th>').join('') + '</tr></thead><tbody>' +
+        rows.map(r => '<tr>' + r.map(c => '<td>' + mdInline(esc(c)) + '</td>').join('') + '</tr>').join('') + '</tbody></table>');
+      continue;
+    }
+    const ul = t.match(/^[-*+]\s+(.*)$/);
+    const ol = t.match(/^\d+[.)]\s+(.*)$/);
+    if (ul || ol) {
+      flushPara();
+      const want = ul ? 'ul' : 'ol';
+      if (listType !== want) { closeList(); out.push('<' + want + '>'); listType = want; }
+      out.push('<li>' + mdInline(esc((ul || ol)[1])) + '</li>');
+      i++; continue;
+    }
+    if (t === '') { flushPara(); closeList(); i++; continue; }
+    para.push(t); i++;
+  }
+  flushPara(); closeList();
+  return out.join('\n');
+}
+
+/* ── 可视化定位: 源 markdown 块 → 渲染元素 的行号映射 ── */
+function splitSourceBlocks(md) {
+  const lines = md.split('\n');
+  const blocks = [];
+  let i = 0;
+  while (i < lines.length) {
+    while (i < lines.length && lines[i].trim() === '') i++;   // 跳过空行, 不产生空块
+    if (i >= lines.length) break;
+    const start = i + 1; // 1-based 行号
+    let j = i;
+    if (/^#{1,6}\s/.test(lines[i])) {                          // 标题行单独成块(与渲染 h2-6 一一对应)
+      blocks.push({ start, end: start, text: lines[i] });
+      i += 1; continue;
+    }
+    if (/^```/.test(lines[i])) {                               // 代码块整体(含内部空行)
+      j = i + 1;
+      while (j < lines.length && !/^```/.test(lines[j])) j++;
+      j = Math.min(j + 1, lines.length);
+      blocks.push({ start, end: j, text: lines.slice(i, j).join('\n') });
+      i = j; continue;
+    }
+    if (/^\s*\|/.test(lines[i]) && i + 1 < lines.length && /^\s*\|/.test(lines[i + 1])) { // 表格整体
+      j = i + 1;
+      while (j < lines.length && /^\s*\|/.test(lines[j])) j++;
+      blocks.push({ start, end: j, text: lines.slice(i, j).join('\n') });
+      i = j; continue;
+    }
+    while (j < lines.length && lines[j].trim() !== '' && !/^```/.test(lines[j])) j++;
+    blocks.push({ start, end: Math.max(j, i + 1), text: lines.slice(i, Math.max(j, i + 1)).join('\n') });
+    i = Math.max(j, i + 1);
+  }
+  return blocks;
+}
+
+function _normText(s) {
+  return (s || '').toLowerCase()
+    .replace(/[\u2018\u2019\u201c\u201d\u00ab\u00bb\u2013\u2014\u2026]/g, ' ')  // 弯引号/弯连字符/省略号(pandoc smart 转义产物)
+    .replace(/[#*`>|\[\]()!\\\-–—_~^"'“”‘’]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function annotatePreview() {
+  const body = document.getElementById('pvBody');
+  const blocks = window._pvSourceBlocks;
+  if (!body || !blocks) return;
+  const els = Array.from(body.children).filter(e => e.tagName !== 'STYLE');
+  let bi = 0;
+  for (const el of els) {
+    const t = _normText(el.textContent);
+    if (!t || !t.length) continue;
+    for (let k = bi; k < blocks.length; k++) {
+      const bt = _normText(blocks[k].text);
+      if (!bt) { bi = k + 1; continue; }
+      if (bt === t || (bt.length > 8 && (bt.includes(t) || t.includes(bt)))) {
+        el.dataset.line = blocks[k].start;
+        el.dataset.lineEnd = blocks[k].end;
+        bi = k + 1;
+        break;
+      }
+      if (k - bi > 4) break; // 最多跳过 4 个未命中块, 防止错位蔓延
+    }
+  }
+}
+
+function highlightLine(line) {
+  const body = document.getElementById('pvBody');
+  if (!body || !line) return null;
+  // 先找精确命中: data-line 范围包含目标行的元素
+  let hit = null;
+  body.querySelectorAll('[data-line]').forEach(el => {
+    const s = parseInt(el.dataset.line, 10), e = parseInt(el.dataset.lineEnd || el.dataset.line, 10);
+    if (s <= line && line <= e) {
+      if (!hit) hit = el; // 只取第一个命中
+    }
+  });
+  if (!hit) {
+    // 兜底: 找离目标行最近的元素
+    let bestD = 1e9;
+    body.querySelectorAll('[data-line]').forEach(el => {
+      const s = parseInt(el.dataset.line, 10);
+      const d = Math.abs(s - line);
+      if (d < bestD) { bestD = d; hit = el; }
+    });
+  }
+  if (hit) {
+    hit.classList.add('pv-hit');
+    hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return hit;
+  }
+  // data-line 标注全部失败: 遍历所有块级元素按文本搜索
+  return highlightByTextInBody(body, null, line);
+}
+
+/* 无行号问题的兜底: 按问题消息中的关键词/词条在预览中匹配并高亮 */
+function highlightByText(kw) {
+  const body = document.getElementById('pvBody');
+  if (!body || !kw) return null;
+  return highlightByTextInBody(body, kw, 0);
+}
+
+/* 统一的文本搜索高亮: 在 body 的所有块级子元素中查找匹配 */
+function highlightByTextInBody(body, kw, line) {
+  const key = kw ? _normText(kw) : '';
+  let hit = null;
+  const els = Array.from(body.children).filter(e => e.tagName !== 'STYLE');
+  for (const el of els) {
+    const t = _normText(el.textContent);
+    if (!t || t.length < 3) continue;
+    if (key && t.includes(key)) { hit = el; break; }
+  }
+  // 关键词也匹配失败时, 尝试用行号附近的文本做模糊匹配 (取源文件第 line 行的内容)
+  if (!hit && line) {
+    const blocks = window._pvSourceBlocks || [];
+    for (const b of blocks) {
+      if (b.start <= line && line <= b.end) {
+        const bt = _normText(b.text);
+        if (bt.length > 8) {
+          for (const el of els) {
+            const t = _normText(el.textContent);
+            if (t.length > 8 && (bt.includes(t) || t.includes(bt))) { hit = el; break; }
+          }
+        }
+        if (hit) break;
+      }
+    }
+  }
+  if (hit) {
+    hit.classList.add('pv-hit');
+    hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return hit;
+  }
+  return null;
+}
+
+function splitPreviewBySections(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const nodes = Array.from(doc.body.childNodes);
+  const hasH2 = nodes.some(n => n.nodeType === 1 && n.tagName === 'H2');
+  if (!hasH2) return [{ title: '全文', html }];
+  // 「全文」tab = 整篇文章(所有节点), 之后按 H2 分节供跳读
+  const sections = [{ title: '全文', nodes: [...nodes] }];
+  let cur = null;
+  nodes.forEach(n => {
+    if (n.nodeType === 1 && n.tagName === 'H2') {
+      cur = { title: n.textContent.trim() || '未命名章节', nodes: [] };
+      sections.push(cur);
+    }
+    if (cur) cur.nodes.push(n);
+  });
+  return sections.map(s => ({ title: s.title, html: s.nodes.map(x => x.outerHTML).join('') }));
+}
+
+function renderPreviewTab(i) {
+  const secs = window._pvSections || [];
+  const tabs = document.getElementById('pvTabs');
+  const body = document.getElementById('pvBody');
+  if (!tabs || !body) return;
+  tabs.innerHTML = secs.map((s, j) => {
+    const cnt = (s.html.match(/<h[2-6]/g) || []).length;
+    return `<button class="pv-tab ${j===i?'on':''}" onclick="renderPreviewTab(${j})">${esc(s.title)}${cnt?'<span class="cnt">'+cnt+'</span>':''}</button>`;
+  }).join('');
+  body.innerHTML = secs[i].html;
+  // 定位模式下: 每次渲染后重建行号标注并重放高亮(行号优先, 无行号时按关键词匹配)
+  if (window._pvSourceBlocks) {
+    annotatePreview();
+    let hitEl = null;
+    if (window._pvLocateLine) hitEl = highlightLine(window._pvLocateLine);
+    if (!hitEl && window._pvLocateKw) hitEl = highlightByText(window._pvLocateKw);
+    showLocateBanner(hitEl);
+  }
+}
+
+/* 定位横幅: 在预览区顶部显示定位信息 */
+function showLocateBanner(hitEl) {
+  const prevBox = document.getElementById('visPreview');
+  if (!prevBox) return;
+  const existing = prevBox.querySelector('.pv-locate-banner');
+  if (existing) existing.remove();
+  const line = window._pvLocateLine;
+  const kw = window._pvLocateKw;
+  if (!line && !kw) return;
+  const file = window._pvLocateFile || 'manuscript/main.md';
+  const short = file.replace(/^.*?(?:manuscript|framework|review|submit|research|journal)\//, '');
+  const info = hitEl
+    ? `已定位到 <b>${esc(short)}</b>${line ? ' · 第 ' + line + ' 行' : ''}${kw ? ' · 关键词: "' + esc(kw.slice(0, 20)) + '"' : ''}`
+    : `已打开 <b>${esc(short)}</b>${line ? ' · 目标第 ' + line + ' 行' : ''}<span style="color:var(--danger)">（未精确命中, 请手动查找）</span>`;
+  const banner = document.createElement('div');
+  banner.className = 'pv-locate-banner';
+  banner.innerHTML = `<span class="pv-tag">定位</span><span class="pv-info">${info}</span>`;
+  const card = prevBox.querySelector('.card');
+  if (card) card.insertBefore(banner, card.firstChild);
+}
+
+async function selectProject(path) {
+  current = projects.find(p => p.path === path) || {path};
+  document.querySelectorAll('.proj').forEach(el => el.classList.toggle('sel', decodeURIComponent(el.dataset.path) === path));
+  switchView('detail');
+  document.getElementById('dTitleText').textContent = (current.topic || path) + ' — ' + (current.journal || '期刊待推荐');
+  await refreshDetail();
+}
+
+/* URL ?sel=项目路径 支持: 打开页面即选中项目(便于分享/恢复/自动化验证) */
+function selectFromUrl() {
+  const m = location.search.match(/[?&]sel=([^&]+)/);
+  if (!m) return;
+  const path = decodeURIComponent(m[1]);
+  // 规范化路径分隔符, 兼容 URL 中的 / 与后端返回的 \ (Windows)
+  const norm = s => String(s || '').replace(/\\/g, '/');
+  const target = norm(path);
+  let tries = 0;
+  const t = setInterval(() => {
+    tries += 1;
+    if (projects.length && projects.some(p => norm(p.path) === target)) {
+      clearInterval(t);
+      selectProject(projects.find(p => norm(p.path) === target).path);
+      locateFromUrl();
+    } else if (tries > 60) {
+      clearInterval(t); // 5s 超时, 项目不存在则放弃
+    }
+  }, 100);
+}
+
+/* URL ?locate=file|line[|keyword]: 选中项目后直接在可视化预览中标明问题位置 */
+function locateFromUrl() {
+  const m = location.search.match(/[?&]locate=([^&]+)/);
+  if (!m) return;
+  const parts = decodeURIComponent(m[1]).split('|');
+  const file = parts[0] || 'manuscript/main.md';
+  const line = parseInt(parts[1], 10) || 0;
+  const kw = parts[2] || null;
+  setTimeout(() => qLocate(file, line, kw), 800); // 等详情页与预览就绪
+}
+
+async function refreshDetail() {
+  if (!current || !current.path) return;
+  const d = await api('/api/state?proj=' + encodeURIComponent(current.path));
+  if (d.error) { toast(d.error, 'err'); return; }
+  detail = d;
+  current.topic = d.topic; current.journal = d.journal; current.stage = d.stage;
+  document.getElementById('dTitleText').textContent = (d.topic || current.path) + ' — ' + (d.journal || '期刊待推荐');
+  const idx = STAGES.indexOf(d.stage);
+  document.getElementById('stageBar').innerHTML = STAGES.map((s,i) =>
+    `<div class="seg ${i<idx?'done':i===idx?'cur':''}"><span>${STAGE_ICON[s]} ${STAGE_LABEL[s]}</span></div>`).join('');
+  // 动态操作引导
+  const stageHint = document.getElementById('stageHint');
+  if (stageHint) {
+    const st = d.stages && d.stages[d.stage];
+    const total = st ? st.items.length : 0;
+    const done = st ? st.checked.length : 0;
+    if (total && done >= total) {
+      stageHint.textContent = '当前阶段检查点已全部完成，可点击「推进到下一阶段」';
+      stageHint.style.color = 'var(--ok)';
+    } else if (total) {
+      stageHint.textContent = `请完成下方 ${total - done} 个检查点（已完成 ${done}/${total}），点「AI 生成」可自动产出`;
+      stageHint.style.color = 'var(--dim)';
+    } else {
+      stageHint.textContent = '先完成下方检查点，再推进到下一阶段';
+      stageHint.style.color = 'var(--dim)';
+    }
+  }
+  // 详情卡默认展示最近一次 dashboard 质量摘要(来自项目总览数据), 点击「运行质量检查」才重新计算
+  const cached = projects.find(p => p.path === current.path);
+  if (cached && (cached.quality || cached.topIssues)) renderQualitySummary(cached);
+  await renderCheckpoints();
+  renderGenPanel();
+  await renderFiles();
+  await loadIntake();
+  loadQualityHistory();  // 质量历史趋势与 QC 明细(端点缺失时优雅降级)
+}
+
+function renderQualitySummary(p) {
+  const box = document.getElementById('qualityBox');
+  if (!box) return;
+  const q = p.quality || {};
+  const s = q.score;
+  if (s === undefined || s === null) { box.innerHTML = '<div class="empty">点击「运行质量检查」查看问题清单与修复建议</div>'; return; }
+  const scoreCls = s >= 70 ? 'good' : s >= 50 ? 'mid' : 'bad';
+  const issues = p.topIssues || [];
+  const ic = p.issueCount || {};
+  let html = `<div class="q-score-bar">
+      <div class="q-score-num ${scoreCls}">${s}</div>
+      <div style="flex:1">
+        <div class="q-score-track"><div class="q-score-fill" style="width:${s}%"></div></div>
+        <div class="q-score-lv">${esc(q.level || '—')} · P0=${ic.P0 ?? 0} P1=${ic.P1 ?? 0} P2=${ic.P2 ?? 0} · 前 ${issues.length} 条(完整清单点上方按钮)</div>
+      </div>
+    </div>`;
+  if (issues.length) {
+    html += issues.map((it, i) => {
+      const fix = QTYPE_FIX[it.type] || '针对该问题的具体位置修改正文/产物, 保存后重新运行质量检查验证。';
+      const file = it.file || 'manuscript/main.md';
+      const loc = (file.replace(/^.*?(?:manuscript|framework|review|submit|research|journal)\//, '')) + (it.line ? ':' + it.line : '');
+      const auto = QTYPE_AUTOFIX[it.type] ? `<button class="q-btn fix" onclick="qFix('${it.type}', event)">一键修复</button>` : '';
+      return `<div class="q-item" id="qi${i}" data-msg="${esc(it.msg)}">
+        <div class="q-head" onclick="toggleQItem(${i})">
+          <span class="q-sev ${it.severity}">${it.severity}</span>
+          <span class="q-msg">${esc(it.msg)}</span>
+          ${loc ? `<span class="q-loc">${esc(loc)}</span>` : ''}
+          <button class="q-btn" onclick="qLocate('${esc(file)}', ${it.line || 0}, event)">定位</button>
+          ${auto}
+        </div>
+        <div class="q-fix"><b>怎么改: </b>${esc(fix)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    html += '<div class="empty">✅ 未发现质量问题</div>';
+  }
+  box.innerHTML = html;
+}
+
+async function loadIntake() {
+  if (!current || !current.path) return;
+  const d = await api('/api/intake?proj=' + encodeURIComponent(current.path));
+  document.getElementById('intakeText').value = d.text || '';
+}
+
+async function saveIntake() {
+  if (!current || !current.path) { toast('请先选择项目', 'warn'); return; }
+  const d = await api('/api/intake', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ project: current.path, content: document.getElementById('intakeText').value }) });
+  if (d.error) { toast(d.error, 'err'); return; }
+  toast('项目信息已保存');
+}
+
+async function renderCheckpoints() {
+  const box = document.getElementById('checkpoints');
+  if (!detail || !detail.stage) { box.innerHTML = '<div class="empty">当前阶段未知</div>'; return; }
+  const st = detail.stages[detail.stage];
+  if (!st || !st.items.length) { box.innerHTML = '<div class="empty">暂无检查点</div>'; return; }
+  const checked = new Set(st.checked);
+  const allDone = st.items.length === checked.size;
+  let nextShown = false;
+  const rows = st.items.map((item, i) => {
+    const n = i + 1;
+    const done = checked.has(n);
+    // 解析 "任务(工具)→ 产物文件" 结构
+    const m = item.match(/^(.+?)(?:\s*\(([^)]*)\))?\s*→\s*(.+)$/);
+    let task = (m ? m[1].trim() : item).replace(/^\d+[.、)）]\s*/, '');
+    const tool = m ? m[2] : '';
+    const file = m ? m[3].trim() : '';
+    const isNext = !done && !nextShown;
+    if (isNext) nextShown = true;
+    return `<div class="ck ${done?'done':''} ${isNext?'next':''}" onclick="doCheck(${n})" title="点击${done?'取消':'完成'}该项">
+      <span class="dot">${done?'✓':''}</span>
+      <div class="ck-main">
+        <div class="ck-line"><span class="ck-n">${n}</span><span class="ck-task">${esc(task)}</span>${tool?`<code class="ck-tool">${esc(tool)}</code>`:''}${isNext?'<span class="ck-next">下一步</span>':''}</div>
+        ${file?`<div class="ck-meta">→ ${esc(file)}</div>`:''}
+      </div>
+      <span class="ck-actions">
+        ${done?'':`<button class="q-btn" onclick="event.stopPropagation();autoGenerate('${detail.stage}', ${n})">AI 生成</button>`}
+      </span>
+    </div>`;
+  }).join('');
+  box.innerHTML = (allDone
+    ? '<div class="badge ok" style="margin-bottom:8px">当前阶段检查点全部完成 — 可点击「推进到下一阶段」</div>'
+    : '<div class="sub" style="margin-bottom:10px">点「AI 生成」自动产出文件，或手动创建后点击条目勾选。绿色高亮为下一步。</div>')
+    + rows;
+}
+
+async function doCheck(n) {
+  const st = detail && detail.stages && detail.stages[detail.stage];
+  const checked = new Set((st && st.checked) || []);
+  const d = await api('/api/cmd', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'check', stage: current.stage, n, dir: current.path, uncheck: checked.has(n) }) });
+  if (d && d.output && /Traceback|PermissionError|Error/i.test(d.output)) {
+    toast('操作失败: ' + d.output.slice(0, 120), 'err');
+  }
+  await refreshDetail();
+}
+
+/* AI 生成指定检查点对应的阶段产物 */
+async function autoGenerate(stage, n) {
+  if (!current || !current.path) { toast('请先选择项目', 'warn'); return; }
+  const d = await api('/api/ai/generate', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ project: current.path, stage, checkpoint: n }) });
+  if (d.error) { toast(d.error, 'err'); return; }
+  toast(d.message || '已生成，请到产物文件查看', 'ok');
+  await refreshDetail();
+}
+
+async function renderFiles() {
+  const d = await api('/api/tree?proj=' + encodeURIComponent(current.path));
+  const box = document.getElementById('files');
+  if (d.error) { box.innerHTML = '<div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>' + esc(d.error) + '</div>'; return; }
+  box.innerHTML = d.tree.map(g => '<div class="dirline">' + esc(g.dir) + '</div>' +
+    g.files.map(f => `<span class="fileitem" onclick="openFile('${encodeURIComponent(g.dir + '/' + f.name)}')">${esc(f.name)}</span>`).join('')).join('');
+  hidePre('fileOut');
+}
+
+async function openFile(rel) {
+  const d = await api('/api/file?proj=' + encodeURIComponent(current.path) + '&rel=' + encodeURIComponent(rel));
+  const out = document.getElementById('fileOut');
+  if (d.image) {
+    out.innerHTML = '—— ' + esc(decodeURIComponent(rel)) + ' ——<br><img class="chart-img" src="data:' + d.mime + ';base64,' + d.image + '">';
+    out.classList.remove('hidden');
+  } else if (d.text) {
+    out.textContent = '—— ' + decodeURIComponent(rel) + ' ——\n\n' + d.text;
+    out.classList.remove('hidden');
+  } else { toast('文件不可读', 'warn'); }
+}
+
+async function doCmd(action, extra = {}) {
+  if (!current && !extra.dir) { toast('请先选择项目', 'warn'); return; }
+  const body = { action, dir: current ? current.path : '', ...extra };
+  const d = await api('/api/cmd', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  showPre('cmdOut', d.output || d.error || '', d.error ? 'err' : '');
+  await refreshDetail();
+}
+
+async function doInit() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { toast('请输入研究方向', 'warn'); return; }
+  const btn = document.getElementById('btnInit');
+  busy(btn, true);
+  try {
+    const d = await api('/api/init', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        topic,
+        journal: document.getElementById('journal').value.trim(),
+        type: document.getElementById('paperType').value,
+      }) });
+    showPre('initOut', d.output || d.error || '', d.error ? 'err' : 'ok');
+    await loadProjects();
+    if (!d.error) toast('项目创建成功');
+  } finally { busy(btn, false); }
+}
+
+async function doRecommend() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { toast('先输入研究方向', 'warn'); return; }
+  const d = await api('/api/cmd', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'recommend', topic }) });
+  showPre('initOut', d.output || d.error || '', d.error ? 'err' : '');
+}
+
+async function doStage(force) {
+  const idx = STAGES.indexOf(current.stage);
+  if (idx < 0 || idx >= STAGES.length - 1) { toast('已是最后阶段', 'warn'); return; }
+  if (force) { openForceModal(); return; }  // 页内模态框收集理由(替代 window.prompt), 确认后由 confirmForceModal 提交
+  await doCmd('stage', { stage: STAGES[idx+1], force: false });
+}
+
+async function doReviewBook() { await doCmd('review-book'); }
+/* 分批生成段级进度面板（三期） */
+async function renderGenPanel() {
+  const box = document.getElementById('genBox');
+  if (!box || !current || !current.path) return;
+  const d = await api('/api/gen/status?proj=' + encodeURIComponent(current.path));
+  if (!d || !d.ok) {
+    box.innerHTML = '<div class="empty">分批生成未初始化&ensp;<button class="ghost" onclick="genDo(\'init\')">初始化 draft/</button>&ensp;<button class="ghost" onclick="genDo(\'contract\')">生成契约</button></div>';
+    return;
+  }
+  const badge = s => s === 'done' ? '<span class="badge ok">完成</span>' : s === 'failed' ? '<span class="badge warn">失败</span>' : '<span class="badge">待生成</span>';
+  let html2 = '<div style="font-size:13px;color:var(--dim);margin-bottom:8px">契约：' +
+    (d.contract_exists ? (d.locked ? '<span class="badge ok">已锁定</span>' : '<span class="badge warn">未锁定（正文生成会被拒绝）</span>') : '<span class="badge warn">未生成</span>') +
+    '&ensp;·&ensp;表格 JSON：' + ((d.tables || []).length) + ' 张&ensp;·&ensp;摘要：' + (d.abstract_done ? '已生成' : '未生成') + '</div>';
+  if (d.rows && d.rows.length) {
+    html2 += '<div style="display:flex;flex-direction:column;gap:4px">' + d.rows.map(r =>
+      '<div style="display:flex;align-items:center;gap:8px;font-size:13px">' +
+      '<span style="width:34px;color:var(--dim)">' + esc(r.sid) + '</span>' +
+      '<span style="flex:1">' + esc(r.title) + '</span>' + badge(r.status) +
+      (r.status !== 'done' && d.locked ? '<button class="ghost" style="font-size:12px" onclick="genDo(\'section\',\'' + esc(r.sid) + '\')">生成</button>' : '') +
+      '</div>').join('') + '</div>';
+  }
+  html2 += '<div class="row" style="margin-top:10px">' +
+    (!d.contract_exists ? '<button class="ghost" onclick="genDo(\'contract\')">生成契约</button>' : '') +
+    '<button class="ghost" onclick="genDo(\'tables\')">渲染表格</button>' +
+    '<button class="ghost" onclick="genDo(\'tables\',null,{extract:true})">提取存量表</button>' +
+    '<button class="ghost" onclick="genDo(\'abstract\')">摘要（后置）</button>' +
+    '<button class="ghost" onclick="genDo(\'assemble\')">拼装全文</button>' +
+    '<button class="ghost" onclick="genDo(\'delegate\')">委托 Agent</button>' +
+    '</div>';
+  box.innerHTML = html2;
+}
+async function genDo(action, sid, extra) {
+  if (!current || !current.path) return;
+  const names = { init:'初始化', contract:'生成契约', section:'生成段落 ' + sid, tables:'表格动作', abstract:'生成摘要', assemble:'拼装全文', delegate:'委托 Agent 编排' };
+  if (!confirm('执行「' + (names[action] || action) + '」？')) return;
+  toast('正在执行 ' + (names[action] || action) + '…');
+  const payload = Object.assign({ proj: current.path, action: action }, extra || {});
+  if (sid) payload.sid = sid;
+  const r = await api('/api/gen/action', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  if (r.error) toast(r.error, 'err');
+  else toast(r.msg || '完成', r.ok ? 'ok' : 'warn');
+  renderGenPanel();
+}
+
+async function doReviewAuto() { await doCmd('review-auto'); }
+
+function openDir() {
+  const p = current.path;
+  const a = document.createElement('a');
+  a.href = 'file:///' + encodeURI(p.replace(/\\/g, '/'));
+  a.target = '_blank';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// ── 技能管理 ─────────────────────────────
+async function loadSkills() {
+  const d = await api('/api/skills');
+  skills = d.skills || [];
+  renderSkills();
+}
+
+function renderSkills() {
+  const q = (document.getElementById('skillSearch').value || '').trim().toLowerCase();
+  const box = document.getElementById('skillList');
+  const list = skills.filter(s => !q || s.name.toLowerCase().includes(q) || (s.description||'').toLowerCase().includes(q));
+  if (!list.length) { box.innerHTML = '<div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>没有匹配的技能</div>'; return; }
+  box.innerHTML = '<div class="sub">共 ' + list.length + ' 个技能</div>' + list.map(s => `<div class="skill">
+    <div style="flex:1;min-width:0"><div class="name">${esc(s.name)}</div><div class="desc">${esc(s.description || '(无描述)')}</div></div>
+    <div class="switch ${s.enabled?'on':''}" onclick="toggleSkill('${esc(s.name)}', ${!s.enabled})"></div>
+  </div>`).join('');
+}
+
+async function toggleSkill(name, enabled) {
+  const d = await api('/api/skills/toggle', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name, enabled }) });
+  if (d.error) toast(d.error, 'err'); else { toast((enabled?'已启用':'已禁用') + ' ' + name); await loadSkills(); }
+}
+
+// ── 数据分析 ─────────────────────────────
+async function loadProjectOptions() {
+  const d = await api('/api/projects');
+  const opts = d.map(p => `<option value="${encodeURIComponent(p.path)}">${esc(p.topic)} (${esc(p.stageLabel)})</option>`).join('');
+  document.getElementById('dataProject').innerHTML = '<option value="">不保存到项目（仅预览）</option>' + opts;
+  document.getElementById('aiProject').innerHTML = '<option value="">选择项目</option>' + opts;
+  const tbSel = document.getElementById('tbProject');
+  if (tbSel) tbSel.innerHTML = '<option value="">选择项目</option>' + opts;
+  const expSel = document.getElementById('tbExportProject');
+  if (expSel) expSel.innerHTML = '<option value="">选择项目</option>' + opts;
+  const impSel = document.getElementById('tbImportTarget');
+  if (impSel) impSel.innerHTML = '<option value="">选择目标项目</option>' + opts;
+  const visSel = document.getElementById('visProject');
+  if (visSel) visSel.innerHTML = '<option value="">选择项目</option>' + opts;
+  const sfSel = document.getElementById('sfProject');
+  if (sfSel) sfSel.innerHTML = '<option value="">不选择项目（独立模式）</option>' + opts;
+  const refSel = document.getElementById('refProject');
+  if (refSel) refSel.innerHTML = '<option value="">不写入项目</option>' + opts;
+  const dshSel = document.getElementById('dshProject');
+  if (dshSel) dshSel.innerHTML = '<option value="">选择项目</option>' + opts;
+  const figSel = document.getElementById('figProject');
+  if (figSel) figSel.innerHTML = '<option value="">选择项目</option>' + opts;
+}
+
+async function parseColumns() {
+  const filename = document.getElementById('dataFilename').value.trim() || 'data.csv';
+  const content = document.getElementById('dataContent').value;
+  if (!content) { toast('请先粘贴数据', 'warn'); return; }
+  const d = await api('/api/data/columns', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ filename, content }) });
+  if (d.error) { toast(d.error, 'err'); document.getElementById('dataColumnsInfo').textContent = d.error; return; }
+  const xSel = document.getElementById('chartX');
+  const ySel = document.getElementById('chartY');
+  xSel.innerHTML = '<option value="">X / 类别列</option>' + d.columns.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  ySel.innerHTML = '<option value="">Y / 数值列</option>' + d.columns.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const gSel = document.getElementById('tableGroupCol');
+  gSel.innerHTML = '<option value="">分组列（可选）</option>' + d.columns.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  document.getElementById('dataColumnsInfo').textContent = `解析到 ${d.columns.length} 列：${d.columns.join(', ')}`;
+}
+
+async function generateChart() {
+  const filename = document.getElementById('dataFilename').value.trim() || 'data.csv';
+  const content = document.getElementById('dataContent').value;
+  if (!content) { toast('请先粘贴数据', 'warn'); return; }
+  const projEnc = document.getElementById('dataProject').value;
+  const project = projEnc ? decodeURIComponent(projEnc) : '';
+  const body = {
+    project,
+    filename,
+    content,
+    chart_type: document.getElementById('chartType').value,
+    x: document.getElementById('chartX').value || null,
+    y: document.getElementById('chartY').value || null,
+    title: document.getElementById('chartTitle').value.trim(),
+  };
+  const d = await api('/api/data/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const box = document.getElementById('chartResult');
+  if (d.error) { box.innerHTML = '<div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>' + esc(d.error) + '</div>'; return; }
+  let statsHtml = '';
+  if (d.stats && Object.keys(d.stats).length) {
+    statsHtml = '<table><tr><th>列</th><th>数量</th><th>均值</th><th>最小</th><th>最大</th><th>标准差</th></tr>' +
+      Object.entries(d.stats).map(([c, s]) => `<tr><td>${esc(c)}</td><td>${s.count}</td><td>${s.mean}</td><td>${s.min}</td><td>${s.max}</td><td>${s.stdev}</td></tr>`).join('') + '</table>';
+  }
+  box.innerHTML = `<div class="sub" style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span>已生成 ${esc((d.format||'').toUpperCase())} 图表${d.rel ? ' · ' + esc(d.rel) : ''}</span>
+    ${d.pdf_rel ? `<a href="/api/download?path=${encodeURIComponent(d.pdf_file)}" download style="color:var(--acc);font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:3px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:13px;height:13px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>下载 PDF 矢量版</a>` : ''}
+    ${project && d.rel ? `<button class="ok" style="font-size:12px;padding:4px 12px" onclick="insertIntoManuscript('chart','${esc(d.rel)}','${esc(d.file)}','${esc(document.getElementById('chartTitle').value.trim() || '')}')">插入正文</button>` : ''}
+    </div>
+    <img class="chart-img" src="${d.data_url}" alt="chart">${statsHtml}`;
+}
+
+async function generateTable() {
+  const filename = document.getElementById('dataFilename').value.trim() || 'data.csv';
+  const content = document.getElementById('dataContent').value;
+  if (!content) { toast('请先粘贴数据', 'warn'); return; }
+  const projEnc = document.getElementById('dataProject').value;
+  const project = projEnc ? decodeURIComponent(projEnc) : '';
+  const body = {
+    project,
+    filename,
+    content,
+    table_type: document.getElementById('tableType').value,
+    group_col: document.getElementById('tableGroupCol').value || null,
+    title: document.getElementById('tableTitle').value.trim(),
+  };
+  const d = await api('/api/table/generate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const box = document.getElementById('tableResult');
+  if (d.error) { box.innerHTML = '<div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>' + esc(d.error) + '</div>'; return; }
+  const dl = [];
+  if (d.csv_rel) dl.push(`<a href="/api/download?path=${encodeURIComponent(d.csv_file)}" download class="dl-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:13px;height:13px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>CSV</a>`);
+  if (d.tex_rel) dl.push(`<a href="/api/download?path=${encodeURIComponent(d.tex_file)}" download class="dl-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:13px;height:13px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>LaTeX</a>`);
+  if (d.md_rel) dl.push(`<a href="/api/download?path=${encodeURIComponent(d.md_file)}" download class="dl-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:13px;height:13px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Markdown</a>`);
+  box.innerHTML = `<div class="sub" style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span>已生成 ${esc(d.type)} 表格 (${d.row_count} 行数据)</span>${dl.join('')}
+    ${project ? `<button class="ok" style="font-size:12px;padding:4px 12px" onclick="insertIntoManuscript('table','','','${esc(d.title || '')}',${JSON.stringify(d.markdown_content).replace(/'/g,"&#39;")})">插入正文</button>` : ''}
+  </div>
+  <div class="sci-table-wrap">${d.html_content || ''}</div>`;
+}
+
+async function insertIntoManuscript(kind, relPath, filePath, caption, markdown) {
+  const projEnc = document.getElementById('dataProject').value;
+  if (!projEnc) { toast('请先选择项目', 'warn'); return; }
+  const project = decodeURIComponent(projEnc);
+  const section = prompt('插入到哪个章节？（输入章节标题关键词，如 Results / Discussion，留空则插入到末尾或 [TBD] 位置）', '') || '';
+  const body = { project, kind, section: section.trim() };
+  if (kind === 'chart') {
+    body.path = relPath;
+    body.caption = caption;
+  } else {
+    body.markdown = markdown || '';
+  }
+  const d = await api('/api/manuscript/insert', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if (d.error) { toast(d.error, 'err'); return; }
+  toast('已插入到正文' + (section ? ' · ' + section : ''), 'ok');
+}
+
+// ── 文献工具 ─────────────────────────────
+async function searchLiterature() {
+  const query = document.getElementById('litQuery').value.trim();
+  if (!query) { toast('请输入检索关键词', 'warn'); return; }
+  const sources = [];
+  if (document.getElementById('litOpenalex').checked) sources.push('openalex');
+  if (document.getElementById('litArxiv').checked) sources.push('arxiv');
+  if (document.getElementById('litCrossref').checked) sources.push('crossref');
+  if (document.getElementById('litPubmed').checked) sources.push('pubmed');
+  const limit = parseInt(document.getElementById('litLimit').value) || 10;
+  const d = await api('/api/tools/search', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ query, sources, limit }) });
+  if (d.error) { showPre('litOut', '错误: ' + d.error, 'err'); return; }
+  const lines = (d.results || []).map((r, i) => {
+    const authors = (r.authors || []).slice(0,5).join(', ');
+    return `${i+1}. [${r.source}] ${r.title || '(无标题)'} (${r.year || '?'})\n   作者: ${authors || '未知'}\n   DOI: ${r.doi || '-'}\n   出处: ${r.venue || '-'}`;
+  });
+  showPre('litOut', lines.length ? lines.join('\n\n') : '无结果');
+}
+
+async function verifyBib() {
+  const bibtex = document.getElementById('bibInput').value;
+  if (!bibtex.trim()) { toast('请粘贴 BibTeX', 'warn'); return; }
+  const d = await api('/api/tools/verify_bib', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ bibtex }) });
+  const box = document.getElementById('bibOut');
+  if (d.error) { box.innerHTML = '<div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>' + esc(d.error) + '</div>'; return; }
+  const rows = (d.results || []).map(r => `<tr>
+    <td>${esc(r.id || '')}</td>
+    <td>${esc((r.title || '').slice(0,60))}</td>
+    <td>${esc(r.year || '')}</td>
+    <td>${esc((r.doi || '').slice(0,30))}</td>
+    <td>${esc(r.status || '')}</td>
+    <td>${esc(r.note || '')}</td>
+  </tr>`).join('');
+  box.innerHTML = '<table><tr><th>Key</th><th>标题</th><th>年份</th><th>DOI</th><th>状态</th><th>说明</th></tr>' + rows + '</table>';
+}
+
+async function buildRefs() {
+  const query = document.getElementById('refQuery').value.trim();
+  if (!query) { toast('请输入研究方向/关键词', 'warn'); return; }
+  const enc = document.getElementById('refProject').value;
+  const project = enc ? decodeURIComponent(enc) : '';
+  const limit = parseInt(document.getElementById('refLimit').value) || 30;
+  const d = await api('/api/tools/build_refs', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ query, project, sources:['openalex','arxiv','crossref','pubmed'], limit, min: 80 }) });
+  showPre('refBuildOut', d.error ? ('错误: ' + d.error) : JSON.stringify(d, null, 2), d.error ? 'err' : '');
+}
+
+// ── 质量诊断(项目详情内) ─────────────────────────
+async function runQuality() {
+  if (!current || !current.path) { toast('请先选择项目', 'warn'); return; }
+  const box = document.getElementById('qualityBox');
+  const st = document.getElementById('qStatus');
+  st.textContent = '正在运行质量门禁… (约 2-5 秒)';
+  box.innerHTML = '<div class="empty"><span class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>检查中…</div>';
+  try {
+    const d = await api('/api/tools/quality_check', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ project: current.path }) });
+    st.textContent = '';
+    if (d.error) { box.innerHTML = '<div class="empty">错误: ' + esc(d.error) + '</div>'; return; }
+    const issues = d.issues || [];
+    const s = d.score || {};
+    const score = s.score ?? 0;
+    const scoreCls = score >= 70 ? 'good' : score >= 50 ? 'mid' : 'bad';
+    const level = s.level || '—';
+    let html = `<div class="q-score-bar">
+      <div class="q-score-num ${scoreCls}">${score}</div>
+      <div style="flex:1">
+        <div class="q-score-track"><div class="q-score-fill" style="width:${score}%"></div></div>
+        <div class="q-score-lv">${esc(level)} · P0=${s.p0 ?? 0} P1=${s.p1 ?? 0} P2=${s.p2 ?? 0} · 共 ${issues.length} 条</div>
+      </div>
+    </div>`;
+    if (!issues.length) { html += '<div class="empty">✅ 未发现质量问题</div>'; }
+    else {
+      const order = {P0:0, P1:1, P2:2};
+      const sorted = [...issues].sort((a, b) => (order[a.severity] ?? 3) - (order[b.severity] ?? 3));
+      html += sorted.map((it, i) => {
+        const fix = QTYPE_FIX[it.type] || '针对该问题的具体位置修改正文/产物, 保存后重新运行质量检查验证。';
+        const loc = (it.file ? it.file.replace(/^.*?(?:manuscript|framework|review|submit|research|journal)\//, '') : '') + (it.line ? ':' + it.line : '');
+        const auto = QTYPE_AUTOFIX[it.type] ? `<button class="q-btn fix" onclick="qFix('${it.type}', event)">一键修复</button>` : '';
+        const open = `<button class="q-btn" onclick="qLocate('${esc(it.file || 'manuscript/main.md')}'${it.line ? ',' + it.line : ',0'}, event)">定位</button>`;
+        return `<div class="q-item" id="qi${i}" data-msg="${esc(it.msg)}">
+          <div class="q-head" onclick="toggleQItem(${i})">
+            <span class="q-sev ${it.severity}">${it.severity}</span>
+            <span class="q-msg">${esc(it.msg)}</span>
+            ${loc ? `<span class="q-loc">${esc(loc)}</span>` : ''}
+            ${open}
+            ${auto}
+          </div>
+          <div class="q-fix"><b>怎么改: </b>${esc(fix)}</div>
+        </div>`;
+      }).join('');
+    }
+    box.innerHTML = html;
+    toast(`质量分 ${score} (${level})`);
+  } catch (e) {
+    st.textContent = '';
+    box.innerHTML = '<div class="empty">运行失败: ' + esc(String(e && e.message || e)) + '</div>';
+  }
+}
+
+function toggleQItem(i) {
+  // 兼容数字 id(生成于 runQuality/renderQualitySummary) 与字符串 id 两种调用
+  const el = document.getElementById('qi' + i) || document.getElementById(i) || document.getElementById('qsum' + i);
+  if (el) el.classList.toggle('open');
+}
+
+/* 从问题消息提取高亮关键词(引号内词条优先, 否则取前 16 字符) */
+function kwFromMsg(msg) {
+  const m = (msg || '').match(/[“"『「]([^”"』」]{2,60})[”"』」]/);
+  if (m) return m[1];
+  return (msg || '').trim().slice(0, 16);
+}
+
+/* 定位问题到可视化预览中标明, 而非仅打开文本
+   兼容两种调用: qLocate(file, line, event) 与 qLocate(file, line, keyword, event) */
+async function qLocate(file, line, kw, ev) {
+  // 旧调用把 event 放在第三参: 若第三参是对象则视为 event, 关键词置空
+  if (kw && typeof kw === 'object') { ev = kw; kw = null; }
+  if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+  if (!current || !current.path) { toast('请先选择项目', 'warn'); return; }
+  if (!kw && ev && ev.target) {
+    const qi = ev.target.closest('.q-item');
+    if (qi && qi.dataset.msg) kw = kwFromMsg(qi.dataset.msg);
+  }
+  if (/\.(md|markdown)$/i.test(file)) {
+    // Markdown 产物 → 切到可视化预览视图, 在渲染中标明问题所在块
+    window._locating = true; // 阻止 switchView 触发的 autoLoadVisual 覆盖定位参数
+    try {
+      switchView('visual');
+      const sel = document.getElementById('visProject');
+      if (sel) {
+        const enc = encodeURIComponent(current.path);
+        if (![...sel.options].some(o => o.value === enc)) {
+          const opt = document.createElement('option');
+          opt.value = enc;
+          opt.textContent = current.topic || current.path;
+          sel.appendChild(opt);
+        }
+        sel.value = enc;
+      }
+      await loadVisual(current.path, file, line, kw);
+      const hit = document.querySelector('#pvBody .pv-hit');
+      const short = file.replace(/^.*?(?:manuscript|framework|review|submit|research|journal)\//, '');
+      toast(hit
+        ? '已定位: ' + short + (line ? ' 第 ' + line + ' 行' : (kw ? '（含"' + kw.slice(0, 12) + '”）' : ''))
+        : '已打开: ' + short + (line ? ' (目标第 ' + line + ' 行)' : '') + ' — 见顶部定位横幅, 可手动查找', hit ? 'ok' : 'warn');
+    } finally {
+      window._locating = false;
+    }
+    return;
+  }
+  // 非 Markdown(如图片) → 保留原文件预览
+  const d = await api('/api/file?proj=' + encodeURIComponent(current.path) + '&rel=' + encodeURIComponent(file));
+  const out = document.getElementById('fileOut');
+  if (d.text) {
+    const lines = d.text.split('\n');
+    let shown = lines;
+    if (line && lines.length > 40) {
+      const from = Math.max(0, line - 5), to = Math.min(lines.length, line + 4);
+      shown = ['—— ' + file + ' (第 ' + line + ' 行附近) ——', '…']
+        .concat(lines.slice(from, to).map((l, j) => String(from + j + 1).padStart(4) + ' | ' + l))
+        .concat(['…']);
+    } else {
+      shown = ['—— ' + file + ' ——', ''].concat(lines.map((l, j) => String(j + 1).padStart(4) + ' | ' + l));
+    }
+    out.textContent = shown.join('\n');
+    out.classList.remove('hidden');
+    out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    toast('已定位到 ' + file + (line ? ' 第 ' + line + ' 行' : ''));
+  } else if (d.image) {
+    openFile(file);
+  } else { toast('文件不可读: ' + file, 'warn'); }
+}
+
+/* 一键修复可自动修复的问题类型, 其余提示人工修改 */
+async function qFix(type, ev) {
+  if (ev) ev.stopPropagation();
+  if (!current || !current.path) { toast('请先选择项目', 'warn'); return; }
+  const d = await api('/api/tools/qfix', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ project: current.path, issue_type: type }) });
+  if (d.error) { toast(d.error, 'err'); return; }
+  toast(d.msg || '修复完成', d.ok ? 'ok' : 'warn');
+  if (d.ok) {
+    // 刷新详情与质量诊断
+    await refreshDetail();
+    setTimeout(runQuality, 600);
+  } else if (d.file) {
+    qLocate(d.file, d.line || null);
+  }
+}
+
+// ── 工具箱 ─────────────────────────────
+async function tbFillResults() {
+  const enc = document.getElementById('tbProject').value;
+  if (!enc) { toast('请先选择项目', 'warn'); return; }
+  const d = await api('/api/data2paper/fill', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ project: decodeURIComponent(enc) }) });
+  showPre('tbFillOut', d.output || d.error || '', d.error ? 'err' : 'ok');
+}
+
+// ── 科研绘图 (sci-figure) ─────────────────────────
+async function sfLoadStatus() {
+  const d = await api('/api/tools/sci_figure/settings');
+  const st = document.getElementById('sfApiStatus');
+  const ks = document.getElementById('sfKeyStatus');
+  if (d.api_key_set) {
+    st.innerHTML = '<span class="dot"></span>图片 API 已配置';
+    st.style.color = '';
+    if (ks) ks.textContent = '已设置';
+  } else {
+    st.innerHTML = '<span class="dot" style="background:var(--warn)"></span>未配置图片 API';
+    if (ks) ks.textContent = '未设置';
+  }
+  if (d.base_url) document.getElementById('sfBaseUrl').value = d.base_url;
+  if (d.model) document.getElementById('sfModel').value = d.model;
+  const edit = d.edit_supported ? ' · 编辑接口可用' : ' · 当前模型未确认支持 /images/edits';
+  st.title = '文生图使用 /images/generations' + edit;
+}
+function mountSciFigure() {
+  const mount = document.getElementById('sciFigureMount'), card = document.getElementById('sciFigureCard');
+  if (mount && card && card.parentElement !== mount) mount.appendChild(card);
+}
+function sfToggleCfg() {
+  const el = document.getElementById('sfCfg');
+  el.classList.toggle('hidden');
+  if (!el.classList.contains('hidden')) sfLoadStatus();
+}
+async function sfSaveCfg() {
+  const btn = event.target;
+  busy(btn, true);
+  try {
+    const d = await api('/api/tools/sci_figure/settings', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        base_url: document.getElementById('sfBaseUrl').value.trim(),
+        model: document.getElementById('sfModel').value.trim(),
+        api_key: document.getElementById('sfApiKey').value,
+        size: document.getElementById('sfSize').value,
+      }) });
+    if (d.error) { toast(d.error, 'err'); return; }
+    document.getElementById('sfApiKey').value = '';
+    toast('图片 API 配置已保存');
+    sfLoadStatus();
+  } finally { busy(btn, false); }
+}
+async function generateSciFigure() {
+  const prompt = document.getElementById('sfPrompt').value.trim();
+  if (!prompt) { toast('请描述要生成的图', 'warn'); return; }
+  const enc = document.getElementById('sfProject').value;
+  const btn = event.target;
+  const mode = document.getElementById('sfMode').value;
+  const assetId = document.getElementById('sfAssetId').value.trim();
+  if (mode !== 'generate' && !assetId) { toast('编辑模式请填写素材名称 / ID', 'warn'); return; }
+  const sourceVersion = mode === 'edit_version' ? document.getElementById('sfSourceVersion').value : '';
+  let referenceId = mode === 'edit_reference' ? document.getElementById('sfReferenceId').value : '';
+  const selectedFile = document.getElementById('sfReferenceInput')?.files?.[0];
+  if (mode === 'edit_version' && !sourceVersion) { toast('请先选择来源版本', 'warn'); return; }
+  if (mode === 'edit_reference' && !referenceId && selectedFile && assetId) {
+    const uploadedReferenceId = await sfUploadReference();
+    if (uploadedReferenceId) referenceId = uploadedReferenceId;
+    else return;
+  }
+  if (mode === 'edit_reference' && !referenceId) {
+    toast(selectedFile ? '已选择本地文件，但尚未保存。请点击“保存参考图”，上传完成后再生成' : '请先上传或选择参考图', 'warn');
+    return;
+  }
+  const out = document.getElementById('sfOut');
+  const res = document.getElementById('sfResult');
+  busy(btn, true);
+  out.classList.remove('hidden');
+  out.textContent = '正在调用图片生成 API（可能需要 30-90 秒）…';
+  res.innerHTML = '';
+  try {
+    const d = await api('/api/tools/sci_figure', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prompt,
+        project: enc ? decodeURIComponent(enc) : '',
+        asset_id: assetId || document.getElementById('sfName').value.trim() || null,
+        name: document.getElementById('sfName').value.trim() || null,
+        mode: mode === 'generate' ? 'generate' : 'edit',
+        source_version: sourceVersion || null,
+        reference_id: referenceId || null,
+        size: document.getElementById('sfSize').value,
+      }) });
+    if (d.error) { out.textContent = '生成失败: ' + d.error; out.classList.add('errout'); return; }
+    if (d.asset_id) {
+      document.getElementById('sfAssetId').value = d.asset_id;
+      if (!document.getElementById('sfName').value.trim()) document.getElementById('sfName').value = d.asset_id;
+    }
+    out.textContent = '生成成功' + (d.version ? ` · 新版本 ${d.version}` : '') + (d.time ? `（耗时 ${d.time}s）` : '') + (d.rel ? `，已保存到 ${d.rel}` : (d.file ? `，已保存到 ${d.file}` : ''));
+    out.classList.remove('errout'); out.classList.add('okout');
+    res.innerHTML = `<img class="chart-img" src="data:image/${d.format || 'png'};base64,${d.image_b64}" alt="AI 生成图">`
+      + `<div class="sub" style="text-align:center;margin-top:8px">${esc(d.rel || d.file || '')}${d.version ? ` · ${esc(d.version)}（尚未设为当前）` : ''}</div>`
+      + (d.version ? `<div class="row" style="justify-content:center;margin-top:8px"><button class="ghost" onclick="sfSetCurrent('${esc(d.version)}')">设为当前</button><button class="ghost" onclick="sfUseVersion('${esc(d.version)}')">继续 AI 修改</button><button class="ghost" onclick="sfOpenFigureForge('${esc(d.version)}')">用 FigureForge 编辑</button></div>` : '');
+    await sfLoadVersions();
+    if (mode === 'generate' && d.version) {
+      const vsel = document.getElementById('sfSourceVersion');
+      if (vsel) vsel.value = d.version;
+    }
+  } catch (e) {
+    out.textContent = '调用失败: ' + String(e && e.message || e);
+    out.classList.add('errout');
+  } finally { busy(btn, false); }
+}
+
+function sfModeChanged() {
+  const mode = document.getElementById('sfMode').value;
+  document.getElementById('sfVersionWrap').classList.toggle('hidden', mode !== 'edit_version');
+  document.getElementById('sfReferenceWrap').classList.toggle('hidden', mode !== 'edit_reference');
+  document.getElementById('sfReferenceUpload').classList.toggle('hidden', mode !== 'edit_reference');
+  const status = document.getElementById('sfReferenceStatus');
+  if (status && mode === 'edit_reference' && !document.getElementById('sfProject').value) {
+    status.textContent = '独立模式：参考图将保存到工作台素材目录';
+    status.style.color = '';
+  } else if (status) {
+    status.textContent = '支持 PNG/JPG/WEBP，单张 ≤20MB';
+    status.style.color = '';
+  }
+  sfLoadVersions().then(() => {
+    if (mode === 'edit_version') {
+      const vsel = document.getElementById('sfSourceVersion');
+      if (vsel && !vsel.value && vsel.options.length > 1) vsel.selectedIndex = vsel.options.length - 1;
+    }
+  });
+}
+
+function sfProjectChanged() {
+  sfLoadVersions();
+  if (document.getElementById('sfMode').value === 'edit_reference') sfReferenceFileChanged();
+}
+
+function sfReferenceFileChanged() {
+  const file = document.getElementById('sfReferenceInput')?.files?.[0];
+  const status = document.getElementById('sfReferenceStatus');
+  if (!status) return;
+  if (!file) {
+    status.textContent = '支持 PNG/JPG/WEBP，单张 ≤20MB';
+    status.style.color = '';
+    return;
+  }
+  if (!document.getElementById('sfProject').value) {
+    status.textContent = '文件已选择；独立模式下点击“保存参考图”即可';
+    status.style.color = '';
+  } else if (!document.getElementById('sfAssetId').value.trim()) {
+    status.textContent = '文件已选择；请填写素材 ID 后点击“保存参考图”';
+    status.style.color = 'var(--warn)';
+  } else {
+    status.textContent = '文件已选择但尚未保存，请点击“保存参考图”';
+    status.style.color = 'var(--warn)';
+  }
+}
+
+async function sfLoadVersions() {
+  const enc = document.getElementById('sfProject').value;
+  const aid = document.getElementById('sfAssetId').value.trim();
+  const box = document.getElementById('sfHistory');
+  if (!aid) { if (box) box.innerHTML = ''; return; }
+  try {
+    const d = await api('/api/tools/sci_figure/versions?project=' + encodeURIComponent(enc ? decodeURIComponent(enc) : '') + '&asset_id=' + encodeURIComponent(aid));
+    if (d.error) throw new Error(d.error);
+    const vs = d.versions || [], rs = d.references || [];
+    const vsel = document.getElementById('sfSourceVersion');
+    const rsel = document.getElementById('sfReferenceId');
+    if (vsel) vsel.innerHTML = '<option value="">选择版本</option>' + vs.map(v => `<option value="${esc(v.version)}">${esc(v.version)}${v.version === d.current ? '（当前）' : ''}</option>`).join('');
+    if (rsel) rsel.innerHTML = '<option value="">选择参考图</option>' + rs.map(v => `<option value="${esc(v.reference_id)}">${esc(v.reference_id)} · ${esc(v.filename)}</option>`).join('');
+    if (!box) return;
+    if (!vs.length && !rs.length) { box.innerHTML = '<div class="sub">该素材暂无版本或参考图。</div>'; return; }
+    box.innerHTML = '<div class="sub" style="margin-bottom:6px">版本历史（新版本不会自动替换当前版本）</div>' + vs.map(v => `<div class="row" style="gap:8px;margin:5px 0"><img class="fig-thumb sf-version-thumb" data-rel="${esc(v.rel)}" alt="${esc(v.version)}" title="点击放大" onclick="figThumbView(this)"><span class="badge ${v.version === d.current ? 'ok' : 'dim'}">${esc(v.version)}${v.version === d.current ? ' 当前' : ''}</span><span class="sub" style="flex:1">${esc(v.filename)}</span><button class="ghost" onclick="sfUseVersion('${esc(v.version)}')">继续 AI 修改</button><button class="ghost" onclick="sfOpenFigureForge('${esc(v.version)}')">用 FigureForge 编辑</button>${v.version !== d.current ? `<button class="ghost" onclick="sfSetCurrent('${esc(v.version)}')">设为当前</button>` : ''}<a class="ghost" href="/api/download?project=${encodeURIComponent(decodeURIComponent(enc))}&rel=${encodeURIComponent(v.rel)}" target="_blank">下载</a></div>`).join('');
+    await sfHydrateHistoryThumbs();
+  } catch (e) { if (box) box.innerHTML = '<div class="sub">版本列表不可用: ' + esc(String(e.message || e)) + '</div>'; }
+}
+
+async function sfHydrateHistoryThumbs() {
+  const enc = document.getElementById('sfProject').value;
+  const proj = enc ? decodeURIComponent(enc) : '';
+  for (const img of Array.from(document.querySelectorAll('#sfHistory .sf-version-thumb[data-rel]'))) {
+    try {
+      const d = await api('/api/file?proj=' + encodeURIComponent(proj) + '&rel=' + encodeURIComponent(img.dataset.rel));
+      if (d && d.image) img.src = 'data:' + (d.mime || 'image/png') + ';base64,' + d.image;
+      else img.outerHTML = '<span style="color:var(--dim2)">—</span>';
+    } catch (e) { img.outerHTML = '<span style="color:var(--dim2)">—</span>'; }
+  }
+}
+
+function sfUseVersion(v) {
+  document.getElementById('sfMode').value = 'edit_version'; sfModeChanged();
+  document.getElementById('sfSourceVersion').value = v;
+  document.getElementById('sfPrompt').focus();
+}
+function sfOpenFigureForge(v) {
+  const enc = document.getElementById('sfProject').value, aid = document.getElementById('sfAssetId').value.trim();
+  const q = new URLSearchParams({project: enc ? decodeURIComponent(enc) : '', asset_id: aid, version: v});
+  window.open('/figureforge/?' + q.toString(), '_blank');
+}
+
+async function sfSetCurrent(v) {
+  const enc = document.getElementById('sfProject').value, aid = document.getElementById('sfAssetId').value.trim();
+  const d = await api('/api/tools/sci_figure/current', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({project: decodeURIComponent(enc), asset_id: aid, version: v}) });
+  if (d.error) { toast(d.error, 'err'); return; }
+  toast(v + ' 已设为当前版本'); await sfLoadVersions();
+}
+
+async function sfUploadReference() {
+  const file = document.getElementById('sfReferenceInput').files[0];
+  const enc = document.getElementById('sfProject').value, aid = document.getElementById('sfAssetId').value.trim();
+  if (!file) { toast('请先选择参考图文件', 'warn'); return; }
+  if (!aid) { toast('请先填写素材名称 / ID', 'warn'); return; }
+  if (file.size > 20 * 1024 * 1024) { toast('参考图超过 20MB', 'warn'); return; }
+  const data = await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file); });
+  const d = await api('/api/tools/sci_figure/reference', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({project: enc ? decodeURIComponent(enc) : '', asset_id: aid, filename: file.name, data}) });
+  if (d.error) { toast(d.error, 'err'); return; }
+  toast('参考图已保存: ' + d.reference_id);
+  document.getElementById('sfReferenceInput').value = '';
+  await sfLoadVersions();
+  const rsel = document.getElementById('sfReferenceId');
+  if (rsel && d.reference_id) rsel.value = d.reference_id;
+  const status = document.getElementById('sfReferenceStatus');
+  if (status) { status.textContent = '参考图已保存，可直接生成新版本'; status.style.color = 'var(--ok)'; }
+  return d.reference_id;
+}
+
+async function tbImportDocx() {
+  const path = document.getElementById('tbImportDocx').value.trim();
+  if (!path) { toast('请填写文件路径(docx 或 pdf)', 'warn'); return; }
+  const enc = document.getElementById('tbImportTarget').value;
+  if (!enc) { toast('请选择目标项目', 'warn'); return; }
+  const ext = (path.split('.').pop() || '').toLowerCase();
+  const isPdf = ext === 'pdf';
+  const btn = event && event.target;
+  if (btn) busy(btn, true);
+  try {
+    const body = isPdf ? { pdf: path, project: decodeURIComponent(enc) } : { docx: path, project: decodeURIComponent(enc) };
+    const d = await api('/api/import_' + (isPdf ? 'pdf' : 'docx'), { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (d.error) { showPre('tbImportOut', '错误: ' + d.error, 'err'); return; }
+    showPre('tbImportOut',
+      `✔ 已导入 ${isPdf ? 'PDF' : 'docx'} → ${d.file}\n\n字符 ${d.chars} · 段落 ${d.paragraphs} · 标题 ${d.headings} · 表格 ${d.tables} · 图片 ${d.images ?? 0}${d.pages ? ' · 页数 ' + d.pages : ''}\n\n产物: ${d.file}\n图片目录: ${d.image_dir || '—'}`, 'ok');
+    toast((isPdf ? 'PDF' : 'docx') + ' 导入完成');
+  } finally { if (btn) busy(btn, false); }
+}
+
+async function tbFormatRefs() {
+  const bibtex = document.getElementById('tbBib').value;
+  if (!bibtex.trim()) { toast('请粘贴 BibTeX', 'warn'); return; }
+  const d = await api('/api/tools/format_refs', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ bibtex, style: document.getElementById('tbRefStyle').value }) });
+  if (d.error) { showPre('tbRefOut', '错误: ' + d.error, 'err'); return; }
+  showPre('tbRefOut', (d.references || []).join('\n'));
+}
+
+async function tbAuditStats() {
+  const content = document.getElementById('tbStatsText').value;
+  if (!content.trim()) { toast('请粘贴稿件文本', 'warn'); return; }
+  const d = await api('/api/tools/audit_stats', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ content }) });
+  if (d.error) { showPre('tbStatsOut', '错误: ' + d.error, 'err'); return; }
+  const lines = (d.issues || []).map(x => `[L${x.line}] ${x.type}: ${x.msg}\n  ${x.text}`).join('\n');
+  showPre('tbStatsOut', lines || '无问题', lines ? '' : 'ok');
+}
+
+async function tbOriginality() {
+  const content = document.getElementById('tbOrigText').value;
+  if (!content.trim()) { toast('请粘贴待检查文本', 'warn'); return; }
+  const corpus = document.getElementById('tbCorpus').value.trim();
+  const d = await api('/api/tools/originality', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ content, corpus }) });
+  if (d.error) { showPre('tbOrigOut', '错误: ' + d.error, 'err'); return; }
+  const lines = (d.results || []).map(r => `${r.file}  overlap=${r.overlap}  shingles=${r.shared_shingles}`).join('\n');
+  showPre('tbOrigOut', lines || '未发现明显重复', lines ? '' : 'ok');
+}
+
+// ── DSH Agent 桥接 ─────────────────────────────
+async function checkDshStatus() {
+  const el = document.getElementById('dshStatus');
+  if (!el) return;
+  try {
+    const d = await api('/api/agent/status');
+    if (d.available === false) {
+      el.innerHTML = '<span style="color:var(--danger)">DSH Agent 不可达</span> — 请先启动 dsh (端口 3080)';
+    } else {
+      el.innerHTML = '<span style="color:var(--ok)">DSH Agent 在线</span> — ' + (d.model || 'unknown model') + ' · ' + (d.attachedSessions || 0) + ' 会话';
+    }
+  } catch {
+    el.innerHTML = '<span style="color:var(--danger)">DSH Agent 不可达</span> — 请先启动 dsh (端口 3080)';
+  }
+}
+
+async function delegateToAgent() {
+  const instruction = document.getElementById('dshInstruction').value.trim();
+  if (!instruction) { toast('请输入委托指令', 'warn'); return; }
+  const projEnc = document.getElementById('dshProject').value;
+  const cwd = projEnc ? decodeURIComponent(projEnc) : '';
+  const pre = document.getElementById('dshOut');
+  showPre(pre.id, '正在委托 DSH Agent 执行…（可能需要数分钟,请耐心等待）', '');
+  const btn = event?.target; if (btn) busy(btn, true);
+  const d = await api('/api/agent/delegate', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ instruction, cwd, timeout:300 }) });
+  if (btn) busy(btn, false);
+  if (d.error) { showPre(pre.id, '错误: ' + d.error, 'err'); return; }
+  let out = d.text || '';
+  if (d.tool_calls && d.tool_calls.length) {
+    out += '\n\n── 工具调用记录 ──';
+    for (const tc of d.tool_calls) {
+      out += '\n• ' + tc.tool + ' (' + tc.status + ')';
+      if (tc.result_preview) out += '\n  ' + tc.result_preview;
+    }
+  }
+  if (d.sessionId) out += '\n\nSession: ' + d.sessionId;
+  showPre(pre.id, out || '(Agent 未返回文本)', d.text ? '' : 'warn');
+}
+
+// ── AI 助手 ─────────────────────────────
+async function loadAiSettings() {
+  const d = await api('/api/ai/settings');
+  document.getElementById('aiBaseUrl').value = d.base_url || '';
+  document.getElementById('aiModel').value = d.model || '';
+  document.getElementById('aiTemp').value = d.temperature ?? 0.7;
+  const st = document.getElementById('aiKeyStatus');
+  st.textContent = d.api_key_set ? ('已设置' + (d.api_key_env ? '（环境变量）' : '（本地配置）')) : '未设置';
+  st.style.color = d.api_key_set ? 'var(--ok)' : 'var(--danger)';
+}
+
+async function saveAiSettings() {
+  const d = await api('/api/ai/settings', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      base_url: document.getElementById('aiBaseUrl').value.trim(),
+      model: document.getElementById('aiModel').value.trim(),
+      temperature: parseFloat(document.getElementById('aiTemp').value) || 0.7,
+      api_key: document.getElementById('aiApiKey').value.trim(),
+    }) });
+  if (d.error) toast(d.error, 'err'); else { toast('AI 配置已保存'); loadAiSettings(); }
+}
+
+async function sendChat() {
+  const prompt = document.getElementById('aiPrompt').value.trim();
+  if (!prompt) { toast('请输入任务描述', 'warn'); return; }
+  const useTools = document.getElementById('aiTools').checked;
+  const d = await api('/api/ai/chat', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ prompt, tools: useTools }) });
+  if (d.error) { showPre('aiChatOut', '错误: ' + d.error, 'err'); return; }
+  let out = d.reply;
+  if (d.trace && d.trace.length) {
+    out = '工具调用 ' + d.trace.length + ' 次：\n' +
+      d.trace.map(t => `  · [${t.tool}] ${esc(t.args).slice(0, 100)} → ${esc(t.result).slice(0, 90)}…`).join('\n') +
+      '\n\n' + out;
+  }
+  showPre('aiChatOut', out, 'ok');
+}
+
+async function aiAutoGenerate() {
+  const projEnc = document.getElementById('aiProject').value;
+  if (!projEnc) { toast('请先选择项目', 'warn'); return; }
+  const project = decodeURIComponent(projEnc);
+  const stage = document.getElementById('aiStage').value;
+  const d = await api('/api/ai/generate', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ project, stage }) });
+  if (d.error) { showPre('aiGenOut', '错误: ' + d.error, 'err'); return; }
+  if (d.message) { showPre('aiGenOut', d.message); return; }
+  const lines = ['AI 已生成 ' + (d.generated || d.files.length) + ' 个产物:'];
+  (d.files || []).forEach(f => lines.push('\n—— ' + f.file + ' ——\n' + f.content));
+  if (d.auto_checks) {
+    lines.push('\n\n自动核验结果:');
+    d.auto_checks.forEach(c => lines.push('  ' + c.file + ': ' + (c.checks || []).join('; ')));
+  }
+  showPre('aiGenOut', lines.join('\n'), 'ok');
+}
+
+async function aiAutoCompleteStage() {
+  const projEnc = document.getElementById('aiProject').value;
+  if (!projEnc) { toast('请先选择项目', 'warn'); return; }
+  const project = decodeURIComponent(projEnc);
+  const stage = document.getElementById('aiStage').value;
+  if (!confirm('AI 只能起草产物，不能替代引用核验/原创性检查/统计审计等。是否仍要自动勾选全部检查点并强制推进？')) return;
+  // 1. AI 生成缺失产物
+  const gen = await api('/api/ai/generate', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ project, stage }) });
+  if (gen.error) { showPre('aiGenOut', '错误: ' + gen.error, 'err'); return; }
+  // 2. 获取最新状态并勾选全部检查点
+  const st = await api('/api/state?proj=' + encodeURIComponent(project));
+  if (!st || st.error) { showPre('aiGenOut', '错误: 无法读取项目状态', 'err'); return; }
+  const items = (st.stages[stage] || {}).items || [];
+  const checked = new Set((st.stages[stage] || {}).checked || []);
+  const checkResults = [];
+  for (let i = 1; i <= items.length; i++) {
+    if (!checked.has(i)) {
+      const r = await api('/api/cmd', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'check', stage, n: i, dir: project }) });
+      checkResults.push(r.output || r.error || '');
+    }
+  }
+  // 3. 推进到下一阶段（强制，因为 AI 已生成产物）
+  let stageOut = '';
+  const idx = STAGES.indexOf(stage);
+  if (idx >= 0 && idx < STAGES.length - 1) {
+    const adv = await api('/api/cmd', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'stage', stage: STAGES[idx+1], dir: project, force: true, reason: 'AI 生成本阶段产物并勾选检查点完成，自动推进' }) });
+    stageOut = adv.error ? ('推进失败: ' + adv.error) : (adv.output || '');
+  }
+  const lines = [];
+  if (gen.files && gen.files.length) lines.push('已生成: ' + gen.files.map(f => f.file).join(', '));
+  else if (gen.message) lines.push(gen.message);
+  lines.push('已勾选检查点: ' + checkResults.length + ' 项');
+  if (stageOut) lines.push(stageOut.trim().split('\n')[0]);
+  showPre('aiGenOut', lines.join('\n'), 'ok');
+  await refreshDetail();
+}
+
+// ── 图表管理 (view-figures) ─────────────────────────────
+async function autoLoadFigures() {
+  const sel = document.getElementById('figProject');
+  if (!sel || !sel.options.length) return;
+  if (!sel.value) sel.selectedIndex = 1; // 第一个 option 是「选择项目」占位
+  if (sel.value) loadFigures();
+}
+
+async function loadFigures() {
+  const enc = document.getElementById('figProject').value;
+  const box = document.getElementById('figTableBox');
+  const bar = document.getElementById('figCfgBar');
+  const ops = document.getElementById('figOpsCard');
+  const cnt = document.getElementById('figCount');
+  if (!enc) {
+    box.innerHTML = '<div class="empty">请先选择项目</div>';
+    if (bar) bar.classList.add('hidden');
+    if (ops) ops.classList.add('hidden');
+    if (cnt) cnt.textContent = '';
+    return;
+  }
+  box.innerHTML = '<div class="empty">正在加载图表清单…</div>';
+  try {
+    const d = await api('/api/project/figures?project=' + encodeURIComponent(decodeURIComponent(enc)));
+    if (!d || d.error) throw new Error((d && d.error) || '无数据');
+    const figs = d.figures || [];
+    const ig = d.imagegen || {};
+    // 契约(server.py project_figures_data): imagegen = {enabled, api_key_set};
+    // enabled 需 base_url+model+api_key 三者齐全; 任一未就绪即显示配置引导条
+    const igNeedCfg = ig.enabled === false || ig.api_key_set === false;
+    if (bar) bar.classList.toggle('hidden', !igNeedCfg);
+    if (ops) ops.classList.toggle('hidden', !figs.length);
+    if (cnt) cnt.textContent = figs.length ? ('共 ' + figs.length + ' 张图') : '';
+    if (!figs.length) {
+      box.innerHTML = '<div class="empty">暂无图表规划（通常在 framework 阶段生成 figures.md）</div>';
+      return;
+    }
+    renderFiguresTable(figs);
+  } catch (e) {
+    if (bar) bar.classList.add('hidden');
+    if (ops) ops.classList.add('hidden');
+    box.innerHTML = '<div class="empty">图表清单不可用: ' + esc(String(e && e.message || e)) + '</div>';
+    toast('图表清单加载失败（后端端点可能尚未部署）', 'err');
+  }
+}
+
+function figRouteBadge(route) {
+  if (route === 'imagegen') return '<span class="badge violet">imagegen</span>';
+  if (route === 'text') return '<span class="badge dim">text</span>';
+  return '<span class="badge">data</span>';
+}
+
+function renderFiguresTable(figs) {
+  const rows = figs.map(f => {
+    const id = f['编号'] || '';
+    const art = f.artifact || {};          // 契约: {exists, rel, size}
+    const frel = art.rel || f.rel || '';   // 兼容顶层 rel 旧形态
+    const state = frel ? '<span class="badge ok">已生成</span>' : `<span class="badge warn">${esc(f['产物状态'] || '未生成')}</span>`;
+    const size = art.size ? `<div class="sub" style="margin:2px 0 0">${art.size} B</div>`
+      : (f['大小'] ? `<div class="sub" style="margin:2px 0 0">${esc(f['大小'])}</div>` : '');
+    const thumb = frel
+      ? `<img class="fig-thumb" data-rel="${esc(frel)}" alt="${esc(id)}" title="点击放大" onclick="figThumbView(this)">`
+      : '<span style="color:var(--dim2)">—</span>';
+    return `<tr>
+      <td style="width:30px;text-align:center"><input type="checkbox" class="fig-chk" value="${esc(id)}" style="min-height:auto;min-width:0"></td>
+      <td><b>${esc(id)}</b></td>
+      <td style="max-width:280px">${esc(f['内容'] || '')}</td>
+      <td>${figRouteBadge(f.route)}</td>
+      <td style="max-width:220px"><span style="color:var(--dim)">${esc(f.reason || '')}</span></td>
+      <td>${state}${size}</td>
+      <td>${thumb}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('figTableBox').innerHTML =
+    '<table><tr><th></th><th>编号</th><th>内容</th><th>路线</th><th>判定理由</th><th>产物状态</th><th>缩略图</th></tr>' + rows + '</table>';
+  hydrateFigThumbs();
+}
+
+async function hydrateFigThumbs() {
+  const enc = document.getElementById('figProject').value;
+  if (!enc) return;
+  const proj = decodeURIComponent(enc);
+  const imgs = Array.from(document.querySelectorAll('#figTableBox .fig-thumb[data-rel]'));
+  for (const img of imgs) {
+    try {
+      const d = await api('/api/file?proj=' + encodeURIComponent(proj) + '&rel=' + encodeURIComponent(img.dataset.rel));
+      if (d && d.image) img.src = 'data:' + (d.mime || 'image/png') + ';base64,' + d.image;
+      else img.outerHTML = '<span style="color:var(--dim2)">—</span>';
+    } catch (e) { /* 单张缩略图失败忽略 */ }
+  }
+}
+
+function figThumbView(img) {
+  if (!img.src) return;
+  document.getElementById('figLightboxImg').src = img.src;
+  document.getElementById('figLightbox').classList.add('open');
+}
+
+async function figuresGenerate(mode, btn) {
+  const enc = document.getElementById('figProject').value;
+  if (!enc) { toast('请先选择项目', 'warn'); return; }
+  const body = { project: decodeURIComponent(enc), mode: mode === 'selected' ? 'all' : mode };
+  if (mode === 'selected') {
+    const ids = Array.from(document.querySelectorAll('#figTableBox .fig-chk:checked')).map(c => c.value).filter(Boolean);
+    if (!ids.length) { toast('请先勾选要重绘的图', 'warn'); return; }
+    body.ids = ids.join(',');
+  }
+  busy(btn, true);
+  const sum = document.getElementById('figGenSummary');
+  if (sum) sum.innerHTML = '<div class="sub" style="margin-top:10px;margin-bottom:0">正在生成（imagegen 路线可能需要数分钟）…</div>';
+  try {
+    const d = await api('/api/project/figures/generate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (!d || d.error) throw new Error((d && d.error) || '生成失败');
+    const fb = d.fallback ? ' · 降级 ' + d.fallback : '';
+    toast(`生成完成: ${d.generated ?? 0}/${d.total ?? 0} · 跳过 ${d.skipped ?? 0}${fb}`, (d.generated ?? 0) > 0 ? 'ok' : 'warn');
+    if (sum) {
+      const errs = (d.results || []).filter(r => r && (r.error || r.ok === false));
+      sum.innerHTML = `<div class="q-summary" style="margin-top:10px">
+        <div class="qs-row"><span class="q-sev P2">汇总</span><span class="qs-msg">共 ${d.total ?? 0} · 生成 ${d.generated ?? 0} · 跳过 ${d.skipped ?? 0}${fb}</span></div>
+        ${errs.slice(0, 5).map(r => `<div class="qs-row"><span class="q-sev P1">!</span><span class="qs-msg">${esc(r.fig_id || r['编号'] || r.id || '')} ${esc(r.fallback_reason || r.error || r.msg || '')}</span></div>`).join('')}
+      </div>`;
+    }
+    await loadFigures();
+  } catch (e) {
+    toast('生成失败: ' + String(e && e.message || e), 'err');
+    if (sum) sum.innerHTML = '';
+  } finally { busy(btn, false); }
+}
+
+async function figuresUploadFile(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const enc = document.getElementById('figProject').value;
+  if (!enc) { toast('请先选择项目', 'warn'); return; }
+  const chk = Array.from(document.querySelectorAll('#figTableBox .fig-chk:checked')).map(c => c.value).filter(Boolean);
+  if (!chk.length) { toast('请先勾选要替换的图', 'warn'); return; }
+  const figId = chk[0];
+  const dataUrl = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(new Error('读取文件失败'));
+    r.readAsDataURL(file);
+  }).catch(() => null);
+  if (!dataUrl) { toast('读取文件失败', 'err'); return; }
+  try {
+    const d = await api('/api/project/figures/upload', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ project: decodeURIComponent(enc), fig_id: figId, data: dataUrl }) });
+    if (!d || d.error) throw new Error((d && d.error) || '上传失败');
+    toast('上传成功: ' + figId + (d.rel ? ' → ' + d.rel : '') + '（正文引用需重新执行 fill 回填）');
+    await loadFigures();
+  } catch (e) { toast('上传失败: ' + String(e && e.message || e), 'err'); }
+}
+
+function goSfCfg() {
+  switchView('sci-figure');
+  const cfg = document.getElementById('sfCfg');
+  if (cfg && cfg.classList.contains('hidden')) cfg.classList.remove('hidden');
+  sfLoadStatus();
+  const card = cfg && cfg.closest('.card');
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── 流水线进度 (详情页时间线 · 3s 轮询) ─────────────────────────────
+let pipeTimer = null;
+let pipePollKey = null;
+let pipeErrCount = 0;  // 瞬时错误连续计数(404/501 立即停; 其它连败 >=5 才停)
+
+function startPipelinePoll() {
+  stopPipelinePoll();  // 切换项目/重入详情页: 先清理旧定时器
+  if (!current || !current.path) return;
+  pipePollKey = current.path;
+  window._pipeErrShown = false;
+  window._pipeFatal = false;
+  pipeErrCount = 0;
+  pollPipeline();
+  pipeTimer = setInterval(pollPipeline, 3000);
+}
+
+function stopPipelinePoll() {
+  if (pipeTimer) { clearInterval(pipeTimer); pipeTimer = null; }
+}
+
+async function pollPipeline() {
+  if (!current || !current.path || pipePollKey !== current.path) return;
+  const box = document.getElementById('pipeTimeline');
+  if (!box) return;
+  try {
+    // 不经 api(): 需 r.status 区分 404/501 与瞬时错误
+    const r = await fetch('/api/project/pipeline?project=' + encodeURIComponent(current.path));
+    if (pipePollKey !== current.path) return; // 项目已切换, 丢弃过期响应
+    if (r.status === 404 || r.status === 501) {
+      window._pipeFatal = true;
+      throw Object.assign(new Error('端点未部署(' + r.status + ')'), { status: r.status });
+    }
+    if (!r.ok) throw Object.assign(new Error('HTTP ' + r.status), { status: r.status });
+    const d = await r.json();
+    if (!d || d.error) throw new Error((d && d.error) || '无数据');
+    pipeErrCount = 0;  // 成功一次清零
+    renderPipelineTimeline(d);
+  } catch (e) {
+    if (!current || pipePollKey !== current.path) return;
+    if (window._pipeFatal) {  // 404/501: 提示一次即停
+      if (!window._pipeErrShown) {
+        window._pipeErrShown = true;
+        toast('流水线进度端点不可用（404/501 或未部署）', 'warn');
+      }
+      box.innerHTML = '<div class="empty">流水线进度暂不可用 — 后端 /api/project/pipeline 未就绪，已停止轮询</div>';
+      stopPipelinePoll();
+      return;
+    }
+    pipeErrCount += 1;  // 瞬时错误(网络/非 404,501 状态/解析): 计数, 连续 >=5 才停
+    if (pipeErrCount >= 5) {
+      toast('流水线进度连续 ' + pipeErrCount + ' 次获取失败，已暂停轮询', 'warn');
+      box.innerHTML = '<div class="empty">流水线进度获取连续失败，已暂停轮询 — 可重新进入详情页重试</div>';
+      stopPipelinePoll();
+      return;
+    }
+    box.innerHTML = '<div class="empty">流水线进度获取失败(' + pipeErrCount + '/5)，稍后自动重试…</div>';
+  }
+}
+
+function renderPipelineTimeline(d) {
+  const box = document.getElementById('pipeTimeline');
+  if (!box) return;
+  // 契约(server.py project_pipeline_data): stages 为字典, 键=research/journal/…/submit,
+  // 值={checked,total,done,artifacts}; 兼容数组形态做双分支
+  const rawStages = d.stages;
+  let stages = [];
+  if (Array.isArray(rawStages)) {
+    stages = rawStages;
+  } else if (rawStages && typeof rawStages === 'object') {
+    const keys = STAGES.filter(k => rawStages[k] !== undefined);
+    if (!keys.length) Object.keys(rawStages).forEach(k => keys.push(k));
+    stages = keys.map(k => Object.assign({ name: STAGE_LABEL[k] || k, key: k }, rawStages[k] || {}));
+  }
+  if (!stages.length) { box.innerHTML = '<div class="empty">暂无阶段数据</div>'; return; }
+  const curLabel = d.stageLabel || STAGE_LABEL[d.stage] || d.stage || '';
+  let curIdx = stages.findIndex(s => s.key === d.stage || s.name === curLabel || s.name === d.stage);
+  if (curIdx < 0) curIdx = stages.findIndex(s => !s.done);
+  const nodes = stages.map((s, i) => {
+    const cls = s.done ? 'done' : (i === curIdx ? 'cur' : '');
+    const badge = s.done ? 'ok' : (i === curIdx ? '' : 'dim');
+    return `<div class="tl-node ${cls}">
+      <div class="tl-dot">${s.done ? '✓' : i + 1}</div>
+      <div class="tl-name" title="${esc(s.name)}">${esc(s.name)}</div>
+      <div><span class="badge ${badge}">${s.checked ?? 0}/${s.total ?? 0}</span></div>
+    </div>`;
+  }).join('');
+  const logs = d.logs || [];
+  const logHtml = logs.length
+    ? `<div class="pipe-logs" id="pipeLogs">${logs.map(l => `<div class="pl-line">${esc(typeof l === 'string' ? l : JSON.stringify(l))}</div>`).join('')}</div>`
+    : '<div class="sub" style="margin-top:10px;margin-bottom:0">暂无运行日志</div>';
+  let nArt = 0;
+  if (Array.isArray(d.artifacts)) nArt = d.artifacts.length;
+  else stages.forEach(x => { if (Array.isArray(x.artifacts)) nArt += x.artifacts.length; });
+  const art = nArt ? ' · 产物 ' + nArt + ' 项' : '';
+  box.innerHTML = `<div class="sub" style="margin-bottom:6px">当前阶段: <b style="color:var(--acc)">${esc(curLabel)}</b>${art} · 每 3 秒自动刷新</div>
+    <div class="tl-track">${nodes}</div>${logHtml}`;
+  const lg = document.getElementById('pipeLogs');
+  if (lg) lg.scrollTop = lg.scrollHeight;
+}
+
+// ── 质量历史 / QC 明细 (D4) ─────────────────────────
+async function loadQualityHistory() {
+  const box = document.getElementById('historyBox');
+  if (!box || !current || !current.path) return;
+  const key = current.path;
+  try {
+    const d = await api('/api/project/history?project=' + encodeURIComponent(current.path));
+    if (!current || current.path !== key) return; // 项目已切换, 丢弃过期响应
+    if (!d || d.error) throw new Error((d && d.error) || '无数据');
+    renderQualityHistory(d);
+  } catch (e) {
+    if (!current || current.path !== key) return;
+    box.innerHTML = '<div class="empty">质量历史暂不可用（后端 /api/project/history 尚未部署）</div>';
+  }
+}
+
+function histTrendSvg(vals) {
+  const W = 560, H = 96, P = 10;
+  const min = Math.min.apply(null, vals.concat([0]));
+  const max = Math.max.apply(null, vals.concat([100]));
+  const span = Math.max(1, max - min);
+  const step = (W - 2 * P) / Math.max(1, vals.length - 1);
+  const pts = vals.map((v, i) => [P + i * step, H - P - (v - min) * (H - 2 * P) / span]);
+  const line = pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const area = P + ',' + (H - P) + ' ' + line + ' ' + pts[pts.length - 1][0].toFixed(1) + ',' + (H - P);
+  const last = vals[vals.length - 1];
+  const col = last >= 70 ? 'var(--ok)' : last >= 50 ? 'var(--warn)' : 'var(--danger)';
+  const dots = pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="${col}"><title>#${i + 1} ${vals[i]}分</title></circle>`).join('');
+  return `<svg class="trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="分数趋势">
+    <polygon points="${area}" fill="${col}" opacity=".10"/>
+    <polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+  </svg><div class="sub" style="margin:4px 0 0">共 ${vals.length} 次质检 · ${vals[0]}分 → 最新 ${last}分</div>`;
+}
+
+function renderQualityHistory(d) {
+  const box = document.getElementById('historyBox');
+  if (!box) return;
+  const hist = d.history || d.quality_history || d.quality || [];
+  // 契约(server.py project_history_data): 字段名 qcCurrent, 值为 qc-current.json 对象
+  // {issues:[...], score} 或 null; 保留 qc/qc_details/details 旧候选向后兼容
+  const qcRaw = (d.qcCurrent !== undefined && d.qcCurrent !== null) ? d.qcCurrent
+    : (d.qc !== undefined && d.qc !== null ? d.qc
+    : (d.qc_details !== undefined && d.qc_details !== null ? d.qc_details : d.details));
+  const qc = Array.isArray(qcRaw) ? qcRaw
+    : ((qcRaw && Array.isArray(qcRaw.issues)) ? qcRaw.issues : []);
+  const last = hist.length ? hist[hist.length - 1] : null;
+  // P0/P1/P2 徽章卡: 优先取最近一次 history 计数, 否则按 qc 明细汇总
+  const counts = { P0: 0, P1: 0, P2: 0 };
+  if (last && (last.p0 !== undefined || last.P0 !== undefined)) {
+    counts.P0 = last.p0 ?? last.P0 ?? 0;
+    counts.P1 = last.p1 ?? last.P1 ?? 0;
+    counts.P2 = last.p2 ?? last.P2 ?? 0;
+  } else {
+    qc.forEach(x => {
+      const s = x.severity || x.level || '';
+      if (counts[s] !== undefined) counts[s] += (x.count ?? 1);
+    });
+  }
+  let html = `<div class="sev-cards">
+    <div class="sev-card p0"><span class="n">${counts.P0}</span><span class="l">P0 阻断项</span></div>
+    <div class="sev-card p1"><span class="n">${counts.P1}</span><span class="l">P1 重要项</span></div>
+    <div class="sev-card p2"><span class="n">${counts.P2}</span><span class="l">P2 建议项</span></div>
+  </div>`;
+  const vals = hist.map(x => (x.score == null ? 0 : x.score)).filter(v => typeof v === 'number');
+  if (vals.length >= 2) html += '<div class="trend-wrap">' + histTrendSvg(vals) + '</div>';
+  else if (vals.length === 1) html += `<div class="sub">仅一次质检记录: <b>${vals[0]}分</b></div>`;
+  else html += '<div class="sub" style="margin-bottom:0">暂无质检历史 — 先点上方「运行质量检查」</div>';
+  if (qc.length) {
+    html += '<div style="margin-top:12px">' + qc.map((x, i) => {
+      const sevRaw = x.severity || x.level || 'P2';
+      // XSS 加固: class 白名单归一(CSS 为 .q-sev.P0/P1/P2 大写), 非法值回落 P2
+      const sev = ['P0', 'P1', 'P2'].includes(sevRaw) ? sevRaw : 'P2';
+      const msg = x.msg || x.message || x.rule || JSON.stringify(x);
+      const detail = typeof x.detail === 'string' ? x.detail : JSON.stringify(x, null, 2);
+      return `<div class="qc-item" id="qch${i}">
+        <div class="qc-head" onclick="toggleQItem('qch${i}')">
+          <span class="q-sev ${sev}">${esc(sev)}</span>
+          <span style="flex:1;min-width:0;word-break:break-word">${esc(msg)}</span>
+          <span class="qs-line">${esc(x.file || '')}${x.line != null && x.line !== '' ? ':' + esc(String(x.line)) : ''}</span>
+        </div>
+        <div class="qc-body"><pre style="margin:0;max-height:160px">${esc(detail)}</pre></div>
+      </div>`;
+    }).join('') + '</div>';
+  }
+  box.innerHTML = html;
+}
+
+// ── 导出增强 (D4): busy 态 + sanitized 状态提示 ─────────────────────────────
+async function tbExportRun(fmt, btn) {
+  const enc = document.getElementById('tbExportProject').value;
+  if (!enc) { toast('请先选择项目', 'warn'); return; }
+  const fmtSel = document.getElementById('tbExportFormat');
+  if (fmtSel) fmtSel.value = fmt;
+  const st = document.getElementById('tbExportStatus');
+  busy(btn, true);
+  if (st) st.textContent = '正在导出 ' + (fmt || '').toUpperCase() + '…';
+  try {
+    const d = await api('/api/export', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ project: decodeURIComponent(enc), format: fmt }) });
+    if (!d || d.error) {
+      if (st) st.textContent = '';
+      showPre('tbExportOut', (d && d.error) || '导出失败', 'err');
+      return;
+    }
+    if (st) st.innerHTML = d.sanitized
+      ? '<span class="badge warn">已净化</span> 导出前内容经过 sanitized 处理（占位符/风险字符已清理）'
+      : '<span class="badge ok">直接导出</span>';
+    showPre('tbExportOut', d.file || JSON.stringify(d), 'ok');
+    if (d.sanitized) toast('注意: 导出内容经过净化处理(sanitized)', 'warn');
+  } finally { busy(btn, false); }
+}
+
+// ── 强制推进模态框 (D4) ─────────────────────────────
+function openForceModal() {
+  const ta = document.getElementById('forceReason');
+  if (ta) ta.value = '';
+  document.getElementById('forceMask').classList.add('open');
+  if (ta) setTimeout(() => ta.focus(), 60);
+}
+function closeForceModal() {
+  document.getElementById('forceMask').classList.remove('open');
+}
+async function confirmForceModal() {
+  const ta = document.getElementById('forceReason');
+  const reason = ((ta && ta.value) || '').trim();
+  if (!reason) { toast('强制推进必须填写理由', 'warn'); return; }  // 空值不提交
+  if (!current || !current.stage) { closeForceModal(); return; }
+  const idx = STAGES.indexOf(current.stage);
+  if (idx < 0 || idx >= STAGES.length - 1) { closeForceModal(); toast('已是最后阶段', 'warn'); return; }
+  closeForceModal();
+  await doCmd('stage', { stage: STAGES[idx + 1], force: true, reason });
+}
+
+// ── imagegen 设置只读状态 (D5) ─────────────────────────────
+async function loadImageSettings() {
+  const box = document.getElementById('imgSettingsBox');
+  if (!box) return;
+  box.innerHTML = '<span class="sub" style="margin:0">加载中…</span>';
+  try {
+    const d = await api('/api/images/settings');
+    if (!d || d.error) throw new Error((d && d.error) || '无数据');
+    const enabled = d.enabled !== undefined ? d.enabled : !!(d.api_key_set || d.configured);
+    const key = d.masked_key || d.api_key_masked || d.key_masked || (d.api_key_set ? '•••••• (已设置)' : '未设置');
+    box.innerHTML = `<div class="row" style="gap:8px">
+      <span class="badge ${enabled ? 'ok' : 'warn'}">${enabled ? '已启用' : '未启用'}</span>
+      <span class="badge dim">provider: ${esc(d.provider || d.model || 'unknown')}</span>
+      <span class="badge dim">key: ${esc(key)}</span>
+      <button class="ghost" onclick="goSfCfg()">前往配置表单</button>
+    </div>
+    <div class="sub" style="margin:8px 0 0">此处为只读视图（掩码展示）。修改配置请使用上方「科研绘图 → API 设置」表单（走既有 settings 写入端点）。</div>`;
+  } catch (e) {
+    box.innerHTML = '<span class="sub" style="margin:0">设置状态不可用（/api/images/settings 尚未部署）。可直接在上方「科研绘图 → API 设置」表单配置。</span>';
+  }
+}
+
+// 初始化
+mountSciFigure();
+loadProjects();
+selectFromUrl();
+</script>
+</body>
+</html>

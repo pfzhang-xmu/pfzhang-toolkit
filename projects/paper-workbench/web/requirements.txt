@@ -1,0 +1,10 @@
+# 可选依赖:用于生成 PNG 图表;未安装时自动降级为 SVG
+matplotlib>=3.5
+
+# === 2026-08-22 开源集成(refs_pipeline.py / lang-check / ai-screen) ===
+# 引文核验与格式化链
+habanero>=1.2.6        # CrossRef 官方客户端(标题反查/元数据补全)
+citeproc-py>=0.11      # CSL 引文格式化引擎
+pybtex>=0.24           # BibTeX 底层解析(citeproc-py 依赖)
+# 语言质量检查(本地模式需 Java;无 Java 时自动回退公共 API)
+language-tool-python>=2.7

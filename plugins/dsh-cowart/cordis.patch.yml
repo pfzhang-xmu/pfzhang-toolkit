@@ -1,0 +1,12 @@
+# dsh-cowart bundle for DeepSeek Harness (dsh).
+# The host row resolves the package by name through the profile's node_modules;
+# the web half ships through exports["./client"] and is discovered from the
+# dsh.client declaration. The canvas app is built lazily into dist/cowart/ and
+# served same-origin under /cowart/ with storage API + SSE routes.
+- insert:
+    - id: cowart
+      name: dsh-cowart
+      config:
+        # auto | never | force — whether the tldraw canvas is (re)built from
+        # ./canvas when dist/cowart/index.html is missing or stale.
+        buildOnBoot: auto

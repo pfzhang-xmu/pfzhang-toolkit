@@ -1,0 +1,42 @@
+# Paper Workbench — 依赖清单 / Python Dependencies
+# 最小可用: `pip install -r requirements.txt`
+# 未安装的组件自动降级(SVG 图表 / 直连 LLM / 文字图注 / 跳过绑定 API),工作台仍可用。
+
+# ===== 数据图表 / 统计分析 =====
+matplotlib>=3.5
+numpy>=1.21
+pandas>=1.3
+scipy>=1.7
+seaborn>=0.11
+openpyxl>=3.0
+
+# ===== 参考文献核验与格式化 (refs_pipeline / toolbox) =====
+habanero>=1.2.6        # CrossRef 官方客户端(标题反查/元数据补全)
+citeproc-py>=0.11      # CSL 引文格式化引擎
+pybtex>=0.24
+bibtexparser>=1.1
+
+# ===== 语言质量检查 (lang_check,本地需 Java;无 Java 自动回退公共 API) =====
+language-tool-python>=2.7
+
+# ===== 文档导入 / 导出 =====
+python-docx>=0.8        # docx 直读 / 导出模板
+pdfplumber>=0.7         # pdf 直读
+PyMuPDF>=1.23           # PDF 测试夹具与高级 PDF 处理
+reportlab>=3.6          # PDF 导出(基于 reportlab 的路由)
+pypandoc>=1.7           # docx 导出(pandoc)+ pypandoc-binary 可选
+
+# ===== 示意图 / PPT 绘图 (figure_pptx, 导出需 PowerPoint/COM) =====
+python-pptx>=0.6.21
+
+# ===== 桌面版 (desktop.py) =====
+pywebview>=4.0
+
+# ===== 跨生态 MCP 服务 (workbench_mcp / origin_mcp_server) =====
+mcp>=1.0,<2.0           # Model Context Protocol Python SDK (FastMCP API)
+
+# ===== 打包独立 exe (可选) =====
+pyinstaller>=5.0
+
+# ===== Windows-only 可选: Origin COM 桥 & PPT COM 导出 =====
+# pywin32>=300          # 仅 Windows / 需 Origin / Office COM 时安装

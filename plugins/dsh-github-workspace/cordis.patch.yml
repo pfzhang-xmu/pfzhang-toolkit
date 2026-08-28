@@ -1,0 +1,3 @@
+- insert:
+    - id: github-workspace
+      name: dsh-github-workspace

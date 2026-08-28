@@ -1,5 +1,23 @@
 node_modules/
 dist/
+build/
+__pycache__/
+*.py[cod]
+.venv/
+.publish-venv/
+.publish-venv312/
+venv/
+env/
+app_config.json
+data/
+*.log
+.dsh_workbench_session*
+.dsh_workbench_pool.json
+.last-project
+tsconfig.*.tsbuildinfo
 .dsh-images/
 *.reload.js
 .DS_Store
+
+# local update backups
+backups/

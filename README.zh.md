@@ -1,53 +1,52 @@
-# DSH 插件集合
+# DSH 生态仓库
 
 [English](./README.md)
 
-这是一个面向 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的插件集合仓库。
+本仓库统一存放 DeepSeek Harness 生态中的三类内容：
 
-## 当前插件
+- `plugins/`：DSH 插件，负责注册工具、界面集成或宿主能力。
+- `skills/`：可被 Agent 复用的独立技能。
+- `projects/`：完整应用和非插件项目。
 
-| 插件 | 说明 |
-| --- | --- |
-| [`dsh-github-workspace`](./dsh-github-workspace) | 基于本机 GitHub CLI 的工作区，可在 DSH Web GUI 中浏览仓库并提交文本文件修改。 |
-| [`dsh-image-tools`](./dsh-image-tools) | Host 端插件，为 DSH agent 注册 OpenAI Images 兼容的 `generate_image` / `edit_image` 工具，输出保存到项目目录。 |
-| [`dsh-cowart`](./dsh-cowart) | 嵌入 DSH Web GUI 的 tldraw 无限画布，项目存储 + 常驻悬浮窗 + 「生成 → 标注 → 按标注精修」agent 工作流。 |
-| [`dsh-figureforge`](./dsh-figureforge) | 基于 React + TypeScript 的浏览器本地科研图片编辑器，支持 PNG/TIFF 导出和兼容工程 JSON。 |
+## 内容索引
 
-每个插件都位于独立目录中，并应提供安装、配置、安全边界和验证说明。后续新增插件请作为根目录下的同级目录添加，并同步更新本索引。
+### 插件
 
-## dsh-cowart + dsh-image-tools 组合使用
+- [`dsh-cowart`](./plugins/dsh-cowart)：tldraw 无限画布、图片标注和按标注精修流程。
+- [`dsh-github-workspace`](./plugins/dsh-github-workspace)：基于本机 GitHub CLI 的工作区集成。
+- [`dsh-image-tools`](./plugins/dsh-image-tools)：OpenAI Images 兼容的图片生成与编辑工具。
 
-两个插件搭配使用，可以把 DSH 变成可视化图片工作台：**生成 → 标注 → 按标注精修**，全程在聊天窗口旁常驻的无限画布上完成。
+### 项目
 
+- [`dsh-figureforge`](./projects/dsh-figureforge)：浏览器本地科研图片编辑器。
+- [`paper-workbench`](./projects/paper-workbench)：论文写作、审查、数据、绘图和导出全流程工作台。
+
+`dsh-figureforge` 是项目，不是 DSH 插件；它同时作为编辑器内置到 Paper Workbench。
+
+## Paper Workbench
+
+Paper Workbench 提供本地 CLI、Web UI、桌面封装、MCP 服务、AI 辅助写作、科研绘图版本管理、参考图编辑以及 FigureForge 集成。
+
+快速部署：
+
+```bash
+git clone https://github.com/pfzhang-xmu/dsh-plugins.git
+cd dsh-plugins/projects/paper-workbench
+python3.12 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+./start-workbench.sh
 ```
-┌─────────────────────────────────────────────┬──────────────────┐
-│  DSH 对话                                    │  Cowart 画布     │
-│                                             │  （悬浮/固定）    │
-│  [cowart-request:ai_image] prompt...        │  ┌────────────┐  │
-│      ↓ generate_image                       │  │ AI 图片框  │  │
-│      ↓ cowart_insert_image ────────────────►│  │ + prompt   │  │
-│                                             │  └────────────┘  │
-│  [cowart-request:annotation_edit]           │  ┌────────────┐  │
-│      ↓ modlens_read_image（读标注）          │  │ 标注后的图 │  │
-│      ↓ edit_image（按标注修改）              │  └────────────┘  │
-│      ↓ cowart_insert_image ────────────────►│  结果放到原图旁  │
-└─────────────────────────────────────────────┴──────────────────┘
-```
 
-### 示例流程
+然后访问 `http://127.0.0.1:8123`。
 
-1. **打开画布** —— 说「打开 Cowart 画布」，agent 调用 `cowart_open_canvas`，画布出现在悬浮窗（可拖拽/缩放/📌 固定到右侧）。
-2. **生成** —— 在画布上创建「AI 图片」框并输入 prompt（如「一只戴宇航头盔的柴犬，赛博朋克风」）。请求以 `[cowart-request:ai_image]` 到达 agent，按框的宽高比调用 `generate_image`，再用 `cowart_insert_image` 替换框——画布通过 SSE 即时刷新。
-3. **标注** —— 在图片上画箭头、写批注（如「把模糊的飞鸟换成一行清晰可见的白鹭」）。
-4. **精修** —— 选中图片点「按标注修改」，标注截图存入画布资源并以 `[cowart-request:annotation_edit]` 发送；agent 用视觉桥读标注、`edit_image` 按标注重绘，把干净的新图放到原图旁。原图与标注原样保留，方便对比迭代。
+仓库中的 `app_config.example.json` 不含任何凭据。请复制为 `app_config.json`，再在本机配置 API Key，或使用环境变量注入。`data/` 和本地配置已通过 Git 忽略，不会被版本更新覆盖。
 
-所有画布数据（画布 JSON、图片、标注、参考截图）都在 `<工作区>/canvas/` 下，随项目进 git。
+## 版本和更新
 
-## 文档要求
+Paper Workbench 的开发分支是 `main`，稳定版本使用 `paper-workbench-v0.1.0` 等标签。已安装副本可运行 `./update-workbench.sh`：脚本会先备份本地配置和数据，再以 fast-forward 方式更新源码和依赖，保留运行数据。
 
-每个插件必须同时提供以下两份文档：
+详细部署、迁移、回滚、安全和测试说明请参阅项目文档。
 
-- 英文文档：`README.md`
-- 中文文档：`README.zh.md`
+## 许可证
 
-当插件的功能、安装方式、配置、安全边界或验证步骤发生变化时，两份文档必须同步更新。
+每个目录保留自己的许可证。除非目录内另有说明，Paper Workbench 和 FigureForge 使用 MIT 许可证。
