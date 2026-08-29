@@ -1,27 +1,29 @@
-# DSH Ecosystem
+# PF Zhang Toolkit
 
 [中文文档](./README.zh.md)
 
-This repository contains three kinds of reusable content for the DeepSeek Harness ecosystem:
+A personal collection of reusable tools and experiments maintained by [pfzhang-xmu](https://github.com/pfzhang-xmu). The repository brings together three kinds of content:
 
-- `plugins/` — DSH plugins that register tools, UI integrations, or host capabilities.
-- `skills/` — standalone skills reusable by agents.
-- `projects/` — complete applications and non-plugin projects.
+- `plugins/` — plugins that add tools, integrations, or host capabilities.
+- `skills/` — standalone skills that can be reused by AI agents.
+- `projects/` — complete applications and other larger projects.
 
 ## Contents
 
 ### Plugins
 
-- [`dsh-cowart`](./plugins/dsh-cowart) — tldraw infinite canvas and image annotation workflows.
-- [`dsh-github-workspace`](./plugins/dsh-github-workspace) — local GitHub CLI workspace integration.
-- [`dsh-image-tools`](./plugins/dsh-image-tools) — OpenAI Images-compatible image generation/editing tools.
+- [`dsh-cowart`](./plugins/dsh-cowart) — tldraw infinite canvas, image annotation, and refinement workflows.
+- [`dsh-github-workspace`](./plugins/dsh-github-workspace) — GitHub CLI workspace integration.
+- [`dsh-image-tools`](./plugins/dsh-image-tools) — OpenAI Images-compatible image generation and editing tools.
+
+### Skills
+
+The [`skills/`](./skills) directory contains reusable agent skills. New skills can be added there with their own documentation and supporting files.
 
 ### Projects
 
 - [`dsh-figureforge`](./projects/dsh-figureforge) — browser-local scientific figure editor.
 - [`paper-workbench`](./projects/paper-workbench) — end-to-end academic writing, review, data, figure, and export workbench.
-
-`dsh-figureforge` is a project rather than a DSH plugin. It is also bundled into Paper Workbench as the FigureForge editor.
 
 ## Paper Workbench
 
@@ -30,8 +32,8 @@ Paper Workbench provides a local CLI, Web UI, desktop wrapper, MCP server, AI-as
 Quick deployment:
 
 ```bash
-git clone https://github.com/pfzhang-xmu/dsh-plugins.git
-cd dsh-plugins/projects/paper-workbench
+git clone https://github.com/pfzhang-xmu/pfzhang-toolkit.git
+cd pfzhang-toolkit/projects/paper-workbench
 python3.12 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ./start-workbench.sh
@@ -45,7 +47,7 @@ The checked-in `app_config.example.json` contains no credentials. Copy it to `ap
 
 Paper Workbench development happens on `main`. Stable snapshots use tags such as `paper-workbench-v0.1.0`. From an installed checkout, run `./update-workbench.sh` to back up local configuration/data, fast-forward the source tree, refresh dependencies, and preserve runtime data.
 
-See the project documentation for migration, rollback, security, and testing details.
+See each project or plugin directory for its own usage, migration, testing, and license details.
 
 ## License
 
