@@ -18,7 +18,7 @@
 
 ### Skills
 
-[`skills/`](./skills) 目录用于存放可复用的 Agent 技能。每个技能可以包含自己的说明文档和辅助文件。
+[`skills/`](./skills) 目录用于存放可复用的 Agent 技能，并按类别组织。目前 [`skills/office`](./skills/office) 包含 DOCX、PPTX、XLSX、PDF 和 Markdown 转换相关技能。完整索引和使用边界请参阅 [Skills 目录说明](./skills/README.md)。
 
 ### 项目
 
