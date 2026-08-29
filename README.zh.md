@@ -1,27 +1,29 @@
-# DSH 生态仓库
+# PF Zhang 工具箱
 
 [English](./README.md)
 
-本仓库统一存放 DeepSeek Harness 生态中的三类内容：
+这是 [pfzhang-xmu](https://github.com/pfzhang-xmu) 维护的个人工具集合，用于存放日常使用、复用和持续迭代的插件、技能与项目：
 
-- `plugins/`：DSH 插件，负责注册工具、界面集成或宿主能力。
-- `skills/`：可被 Agent 复用的独立技能。
-- `projects/`：完整应用和非插件项目。
+- `plugins/`：提供工具、集成能力或宿主能力的插件。
+- `skills/`：可被 AI Agent 复用的独立技能。
+- `projects/`：完整应用及其他较大型项目。
 
 ## 内容索引
 
 ### 插件
 
-- [`dsh-cowart`](./plugins/dsh-cowart)：tldraw 无限画布、图片标注和按标注精修流程。
-- [`dsh-github-workspace`](./plugins/dsh-github-workspace)：基于本机 GitHub CLI 的工作区集成。
-- [`dsh-image-tools`](./plugins/dsh-image-tools)：OpenAI Images 兼容的图片生成与编辑工具。
+- [`dsh-cowart`](./plugins/dsh-cowart)：tldraw 无限画布、图片标注和精修流程。
+- [`dsh-github-workspace`](./plugins/dsh-github-workspace)：基于 GitHub CLI 的工作区集成。
+- [`dsh-image-tools`](./plugins/dsh-image-tools)：兼容 OpenAI Images 的图片生成与编辑工具。
+
+### Skills
+
+[`skills/`](./skills) 目录用于存放可复用的 Agent 技能。每个技能可以包含自己的说明文档和辅助文件。
 
 ### 项目
 
 - [`dsh-figureforge`](./projects/dsh-figureforge)：浏览器本地科研图片编辑器。
 - [`paper-workbench`](./projects/paper-workbench)：论文写作、审查、数据、绘图和导出全流程工作台。
-
-`dsh-figureforge` 是项目，不是 DSH 插件；它同时作为编辑器内置到 Paper Workbench。
 
 ## Paper Workbench
 
@@ -30,8 +32,8 @@ Paper Workbench 提供本地 CLI、Web UI、桌面封装、MCP 服务、AI 辅�
 快速部署：
 
 ```bash
-git clone https://github.com/pfzhang-xmu/dsh-plugins.git
-cd dsh-plugins/projects/paper-workbench
+git clone https://github.com/pfzhang-xmu/pfzhang-toolkit.git
+cd pfzhang-toolkit/projects/paper-workbench
 python3.12 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ./start-workbench.sh
@@ -45,7 +47,7 @@ python3.12 -m venv .venv
 
 Paper Workbench 的开发分支是 `main`，稳定版本使用 `paper-workbench-v0.1.0` 等标签。已安装副本可运行 `./update-workbench.sh`：脚本会先备份本地配置和数据，再以 fast-forward 方式更新源码和依赖，保留运行数据。
 
-详细部署、迁移、回滚、安全和测试说明请参阅项目文档。
+各插件和项目目录内包含其各自的使用、迁移、测试和许可证说明。
 
 ## 许可证
 
