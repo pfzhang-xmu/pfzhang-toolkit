@@ -18,7 +18,12 @@ A personal collection of reusable tools and experiments maintained by [pfzhang-x
 
 ### Skills
 
-The [`skills/`](./skills) directory contains reusable agent skills, organized by category. The [office and document skills](./skills/office) currently cover DOCX, PPTX, XLSX, PDF, and Markdown conversion workflows. See the [skills catalog](./skills/README.md) for the full index and usage boundaries.
+The [`skills/`](./skills) directory contains reusable agent skills, organized by category:
+
+- [Office and document skills](./skills/office) — DOCX, PPTX, XLSX, PDF, and Markdown conversion workflows.
+- [Grilling](./skills/grilling) — stress-test plans, decisions, and ideas through rounds of structured questions.
+
+See the [skills catalog](./skills/README.md) for the full index, direct links, Raw downloads, and installation guidance.
 
 ### Projects
 
