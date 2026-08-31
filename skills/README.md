@@ -2,6 +2,23 @@
 
 This directory contains reusable skills maintained for personal workflows.
 
+## General-purpose skills
+
+| Skill | Purpose | Links |
+| --- | --- | --- |
+| [`grilling`](./grilling) | Stress-test plans, decisions, and ideas through rounds of structured questions. | [Browse](./grilling) · [Raw SKILL.md](https://raw.githubusercontent.com/pfzhang-xmu/pfzhang-toolkit/main/skills/grilling/SKILL.md) |
+
+### Installing a skill
+
+Clone this repository and copy the skill directory into the skills directory used by your agent:
+
+```bash
+git clone https://github.com/pfzhang-xmu/pfzhang-toolkit.git
+cp -R pfzhang-toolkit/skills/grilling <your-agent-skills-directory>/
+```
+
+The `grilling` package includes `SKILL.md`, `agents/openai.yaml`, and an MIT license.
+
 ## Office and document skills
 
 The `office/` category groups skills for creating, editing, converting, and validating common office and document formats:
