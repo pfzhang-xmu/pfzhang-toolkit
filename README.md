@@ -22,6 +22,8 @@ The [`skills/`](./skills) directory contains reusable agent skills, organized by
 
 - [Office and document skills](./skills/office) — DOCX, PPTX, XLSX, PDF, and Markdown conversion workflows.
 - [Grilling](./skills/grilling) — stress-test plans, decisions, and ideas through rounds of structured questions.
+- [Humanizer Academic](./skills/humanizer-academic) — edit academic medical prose to reduce formulaic AI-writing patterns while preserving scientific meaning and journal tone.
+- [AnySearch](./skills/anysearch) — unified real-time web search skill with general, vertical, batch-search, and full-page extraction support.
 
 See the [skills catalog](./skills/README.md) for the full index, direct links, Raw downloads, and installation guidance.
 
