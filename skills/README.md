@@ -63,6 +63,17 @@ cp -R pfzhang-toolkit/skills/aihot <your-agent-skills-directory>/
 - 需要从图片还原演示文稿时，使用 [`image2ppt`](./image2ppt)；需要生成或修改位图时，使用 [`imagen-skill`](./imagen-skill)。
 - 需要扩展 agent 能力时，使用 [`skill-creator`](./skill-creator)；需要接入外部服务时，使用 [`mcp-builder`](./mcp-builder)。
 
+## 材料化学 + 机器学习科研 Skills
+
+面向材料化学与机器学习研究的精选 skill 已整理在 [`research-materials/`](./research-materials)，按以下四类管理：
+
+- [`literature/`](./research-materials/literature)：文献综述、引用管理和实验设计
+- [`materials-data/`](./research-materials/materials-data)：晶体结构、Materials Project、相图、稳定性和数据探索
+- [`materials-ml/`](./research-materials/materials-ml)：DeepChem、Datamol、MLIP 选择/评测/微调、性质预测、贝叶斯优化和 MatterGen
+- [`atomistic-simulation/`](./research-materials/atomistic-simulation)：VASP、LAMMPS 分子动力学和轨迹分析
+
+详细的适用场景、组合方式、来源仓库和许可证见 [`research-materials/README.md`](./research-materials/README.md) 与 [`research-materials/SOURCES.md`](./research-materials/SOURCES.md)。
+
 ## 目录结构
 
 ```text
@@ -76,6 +87,11 @@ skills/
 ├── image2ppt/
 ├── imagen-skill/
 ├── mcp-builder/
+├── research-materials/
+│   ├── atomistic-simulation/
+│   ├── literature/
+│   ├── materials-data/
+│   └── materials-ml/
 ├── office/
 │   ├── docx/
 │   ├── markitdown/
