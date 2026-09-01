@@ -22,6 +22,8 @@
 
 - [办公与文档技能](./skills/office)：覆盖 DOCX、PPTX、XLSX、PDF 和 Markdown 转换。
 - [Grilling](./skills/grilling)：通过分轮次结构化提问，对计划、决策和想法进行压力测试。
+- [Humanizer Academic](./skills/humanizer-academic)：按医学与科研期刊语体润色论文，减少模板化 AI 写作痕迹并保持科学含义。
+- [AnySearch](./skills/anysearch)：统一实时搜索 skill，支持通用搜索、垂直领域搜索、批量搜索和整页内容提取。
 
 完整索引、直接链接、Raw 下载地址和安装说明请参阅 [Skills 目录说明](./skills/README.md)。
 
