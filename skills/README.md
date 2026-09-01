@@ -33,6 +33,8 @@ cp -R pfzhang-toolkit/skills/aihot <your-agent-skills-directory>/
 | Skill | 适用场景 | 基本使用方法 |
 | --- | --- | --- |
 | [`grilling`](./grilling) | 对计划、决策或想法进行持续、结构化的压力测试，逐轮追问直到形成共同理解。 | 直接提出“帮我 grill 这个计划/方案”或要求对某个决定进行全面质询；agent 会按设计树分轮提问。 |
+| [`humanizer-academic`](./humanizer-academic) | 润色或审查医学、生命科学及其他科研论文，减少公式化 AI 写作模式，同时保留科学含义、数据、引用和期刊语体。 | 提供需要 humanize、polish 或 audit 的学术文本；按两遍改写与自审流程处理，并检查句式节奏、术语一致性和连接逻辑。 |
+| [`anysearch`](./anysearch) | 面向 AI Agent 的统一实时搜索，支持通用搜索、垂直领域搜索、批量搜索和网页整页内容提取。 | 阅读 [`SKILL.md`](./anysearch/SKILL.md) 后调用对应 CLI；配置 API Key 可获得更高限额，也可匿名使用。 |
 | [`aihot`](./aihot) | 查询最新中文 AI 资讯、模型发布、产品动态、AI 论文和行业热点。 | 直接问“今天 AI 圈有什么”“AI 日报”“最近的模型发布”；skill 会调用 AI HOT 公开 API 并整理成中文简报。 |
 | [`ass-LLM`](./ass-LLM) | 明确要求把任务转交给外部 LLM（GPT、Gemini 等）处理。 | 明确说“用外部模型”“调用 GPT/Gemini”“代理模式”，并指定模型或让 skill 按可用模型转发；启用后会原样转发外部模型回答。 |
 | [`frontend-design`](./frontend-design) | 创建高质量、具有独特视觉风格的网页、Landing Page、Dashboard、React 组件或 HTML/CSS 界面。 | 描述页面目标、内容和风格，或提供现有 UI 要求美化；skill 会生成生产级前端代码并避免模板化 AI 风格。 |
