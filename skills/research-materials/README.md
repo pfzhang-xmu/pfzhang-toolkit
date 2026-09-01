@@ -18,6 +18,12 @@
 - `mat-phase-diagram`：从 Materials Project 数据生成组成空间相图。
 - `mat-stability`：计算形成能、凸包距离和热力学稳定性。
 - `exploratory-data-analysis`：检查数据质量、分布、缺失值、异常值和数据泄漏。
+- `mat-db-nist-janaf`：查询 NIST-JANAF 热化学数据。
+- `mat-db-optimade`：通过 OPTIMADE 标准访问材料数据库。
+- `mat-defect-energy`：计算点缺陷形成能。
+- `mat-electronic-structure`：分析能带、态密度和电子结构。
+- `mat-equation-of-state`：拟合状态方程并提取体积/能量性质。
+- `statistical-analysis`：开展统计检验、效应量和不确定性分析。
 
 ### materials-ml
 
@@ -30,12 +36,27 @@
 - `ml-matgl-finetune`：用自有 DFT 数据微调 MatGL/CHGNet/M3GNet。
 - `ml-bayesian-optimization`：针对昂贵模拟或实验做单目标/多目标贝叶斯优化。
 - `ml-generative-mattergen`：生成晶体结构候选并开展材料设计。
+- `scikit-learn`：传统机器学习建模、交叉验证、特征处理和基线比较。
+- `torch-geometric`：构建和训练图神经网络。
+- `shap`：解释性质预测模型的特征贡献和局部/全局行为。
+- `ml-cluster-expansion`：训练簇展开模型并研究构型统计热力学。
+- `ml-committee-uncertainty`：用模型委员会估计不确定性并辅助主动学习。
+- `ml-fairchem-finetune`：微调 FAIRChem/UMA 原子势。
+- `ml-generative-diffcsp`：用 DiffCSP 生成晶体结构。
+- `ml-mlip-automl`：自动化比较和选择 MLIP 配置。
+- `ml-mlip-speed`：基准测试不同 MLIP 的速度和资源消耗。
+- `ml-property-predict-scd`：进行结构到性质的监督预测。
 
 ### atomistic-simulation
 
 - `mat-dft-vasp`：准备 VASP 输入、解析结果并组织 DFT 工作流。
 - `mat-lammps-md`：用 MACE/MatGL/FAIRChem 势运行 LAMMPS 分子动力学。
 - `molecular-dynamics`：用 MDAnalysis 等工具分析轨迹、扩散和动力学性质。
+- `mat-phonon`：计算声子谱和振动态密度。
+- `mat-surface-adsorption`：研究表面吸附结构与吸附能。
+- `mat-surface-energy`：计算晶面表面能。
+- `mat-xrd-phase-analysis`：用 XRD 数据识别和分析物相。
+- `mat-xrd-refinement`：进行 XRD/Rietveld 精修。
 
 ## 推荐组合
 
@@ -46,7 +67,11 @@
 模型评估 → ml-mlip-benchmark
 模型适配 → ml-mace-finetune 或 ml-matgl-finetune
 候选优化 → ml-bayesian-optimization 或 ml-generative-mattergen
-物理验证 → mat-dft-vasp + mat-lammps-md + molecular-dynamics
+物理验证 → mat-dft-vasp + mat-lammps-md + molecular-dynamics + mat-phonon
+
+主动学习闭环 → ml-committee-uncertainty + ml-bayesian-optimization + ml-mlip-benchmark
+
+晶体设计 → ml-generative-mattergen 或 ml-generative-diffcsp → mat-stability → mat-dft-vasp
 ```
 
 ## 使用方式
