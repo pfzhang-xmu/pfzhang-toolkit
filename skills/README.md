@@ -71,6 +71,8 @@ skills/
 ├── ass-LLM/
 ├── frontend-design/
 ├── grilling/
+├── humanizer-academic/
+├── anysearch/
 ├── image2ppt/
 ├── imagen-skill/
 ├── mcp-builder/
