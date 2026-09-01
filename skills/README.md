@@ -1,6 +1,6 @@
 # Skills Catalog
 
-这里集中维护可复用的 Codex Skills。每个 skill 通常包含一个 `SKILL.md`)，以及可选的脚本、参考资料、模板和许可证文件。使用前请先阅读对应的 `SKILL.md`)。
+这里集中维护可复用的 Codex Skills。每个 skill 通常包含一个 `SKILL.md`，以及可选的脚本、参考资料、模板和许可证文件。使用前请先阅读对应的 `SKILL.md`。
 
 ## 快速开始
 
@@ -22,7 +22,7 @@ cp -R pfzhang-toolkit/skills/aihot <your-agent-skills-directory>/
 ### 使用方式
 
 1. 将 skill 目录放入 agent 可发现的 skills 目录。
-2. 阅读该目录下的 `SKILL.md`)，了解触发条件、限制和工作流。
+2. 阅读该目录下的 `SKILL.md`，了解触发条件、限制和工作流。
 3. 在对话中直接描述任务；当请求命中 skill 的适用场景时，agent 会按其中的规则执行。
 4. 如果 skill 附带脚本、模板或参考资料，按 `SKILL.md` 中的命令和路径调用。
 
