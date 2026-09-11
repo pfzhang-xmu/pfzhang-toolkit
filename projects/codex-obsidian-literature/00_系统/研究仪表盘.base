@@ -1,0 +1,49 @@
+views:
+  - type: table
+    name: All papers
+    filters:
+      and:
+        - file.inFolder("10_论文")
+        - type == "paper"
+    order:
+      - file.name
+    sort:
+      - property: year
+        direction: DESC
+    columns:
+      - file.name
+      - title
+      - year
+      - ml_tasks
+      - models
+      - status
+      - review_status
+      - evidence_status
+  - type: table
+    name: Needs review
+    filters:
+      and:
+        - file.inFolder("10_论文")
+        - type == "paper"
+        - review_status == "needs-review"
+    order:
+      - file.name
+    columns:
+      - file.name
+      - title
+      - evidence_status
+      - status
+  - type: table
+    name: Knowledge cards
+    filters:
+      and:
+        - file.inFolder("20_知识")
+        - type == "knowledge"
+    order:
+      - file.name
+    columns:
+      - file.name
+      - knowledge_type
+      - confidence
+      - review_status
+      - source_papers
