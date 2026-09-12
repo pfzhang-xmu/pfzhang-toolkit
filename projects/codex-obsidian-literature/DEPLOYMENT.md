@@ -1,39 +1,28 @@
 # 部署指南
 
-## 自动部署
-
-将仓库下载为 Obsidian vault 后，在项目根目录执行：
+## 新用户
 
 ```bash
+git clone https://github.com/pfzhang-xmu/pfzhang-toolkit.git
+cd pfzhang-toolkit/projects/codex-obsidian-literature
 python3 scripts/setup.py
 python3 scripts/doctor.py
 ```
 
-脚本会检查 Python、安装 `requirements.txt`、创建目录、检查配置并运行测试。Embedding 配置缺失时不会写入密钥，也不会阻止本地笔记处理。
-
-## Embedding 配置
-
-在 vault 外创建 `~/.config/obsidian-codex/embedding.env`：
-
-```text
-EMBEDDING_BASE_URL=https://your-provider.example/v1
-EMBEDDING_API_KEY=your-key
-EMBEDDING_MODEL=your-embedding-model
-```
-
-不要把 API key 写入 Git、Markdown、`.obsidian` 或聊天记录。
-
-## Codex 自动部署
-
-把 GitHub 项目地址发送给 Codex，并说明“按 DEPLOYMENT.md 部署为 Obsidian vault”。Codex 应运行 setup、doctor，询问唯一必须人工提供的 embedding 配置，并验证示例 PDF 流程。
+项目框架由 Git 管理；`10_论文/`、`20_知识/`、`90_附件/` 和 `.research_index/` 是本地用户数据目录，默认被 `.gitignore` 忽略。
 
 ## 使用
 
-将 PDF 放入 `90_附件/论文/`，或在 Codex 对话中直接发送 PDF。Codex 自动生成 `10_论文/` 下的 Paper Note 和 ML Workflow，并按需生成 `20_知识/` 原子卡；完成后更新索引并返回简报。
+把 PDF 放入 `90_附件/论文/`，或在 Codex 对话中直接发送 PDF。系统会生成论文笔记、ML Workflow 和必要的知识卡。
 
-## 故障处理
+## 升级
 
-- 缺依赖：重新运行 `python3 scripts/setup.py`。
-- PDF 无法解析：确认文件完整且为真实 PDF。
-- 索引失败：检查 embedding.env；笔记仍会保留，可稍后运行 `python3 scripts/research_search.py index`。
-- 权限不足：确认 vault 和配置目录可写。
+```bash
+python3 scripts/update.py --target main
+```
+
+升级前自动备份用户数据。框架版本使用语义化版本；稳定版本通过 GitHub Release 发布，可用 `git checkout v0.2.0` 固定或回退版本。升级不会删除论文、PDF、知识卡或索引。
+
+## 索引与故障处理
+
+配置 vault 外的 `~/.config/obsidian-codex/embedding.env` 后运行 `python3 scripts/research_search.py index`。没有 embedding 配置时，笔记处理仍可用，索引可稍后重建。

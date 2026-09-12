@@ -1,0 +1,20 @@
+# User literature and generated knowledge
+10_论文/*
+!10_论文/.gitkeep
+20_知识/**/*
+!20_知识/*/
+!20_知识/*/.gitkeep
+90_附件/论文/*
+!90_附件/论文/.gitkeep
+.research_index/*
+!.research_index/.gitkeep
+
+# Local environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.obsidian/workspace*.json
+.obsidian/cache/
+.DS_Store
+.backups/
