@@ -15,8 +15,11 @@ def main():
  print(f'用户数据备份：{backup}')
  before=(ROOT/'VERSION').read_text().strip() if (ROOT/'VERSION').exists() else 'unknown'
  if run(['git','fetch',args.remote]).returncode: raise SystemExit('获取远端更新失败')
- if run(['git','pull','--ff-only',args.remote,args.target]).returncode:
-  raise SystemExit('无法快进更新；用户数据备份仍保留，请手动处理框架冲突。')
+ if run(['git','reset','--hard',f'{args.remote}/{args.target}']).returncode:
+  raise SystemExit('同步框架失败；用户数据备份仍保留。')
+ for rel in DATA:
+  src=backup/rel; dst=ROOT/rel
+  if src.exists(): shutil.copytree(src,dst,dirs_exist_ok=True)
  after=(ROOT/'VERSION').read_text().strip() if (ROOT/'VERSION').exists() else 'unknown'
  print(f'框架已更新：{before} -> {after}')
  run([sys.executable,str(ROOT/'scripts/doctor.py')])
