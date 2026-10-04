@@ -40,9 +40,12 @@ cp -R pfzhang-toolkit/skills/aihot <your-agent-skills-directory>/
 | [`frontend-design`](./frontend-design) | 创建高质量、具有独特视觉风格的网页、Landing Page、Dashboard、React 组件或 HTML/CSS 界面。 | 描述页面目标、内容和风格，或提供现有 UI 要求美化；skill 会生成生产级前端代码并避免模板化 AI 风格。 |
 | [`imagen-skill`](./imagen-skill) | 使用 GPT Image-2 进行文生图，或根据参考图进行编辑、换背景、修图和生成变体。 | 直接描述要生成的图片，或附图并说明修改内容；skill 会判断文生图/参考图编辑模式并执行对应工作流。 |
 | [`image2ppt`](./image2ppt) | 将 PNG、JPG、截图或照片中的幻灯片还原为可编辑 PPTX，尽量保持原图布局和视觉效果。 | 提供图片并说“图片转 PPT/截图转可编辑 PPT/还原幻灯片”；可配合 `assets/blank.pptx`、脚本和参考资料使用。 |
+| [`ppt-master`](./ppt-master) | 把 PDF、DOCX、网页、Markdown 或一个主题做成**原生可编辑**的 PPTX（真实形状、图表、转场、动画）；也能美化已有 PPTX、生成可复用品牌/版式模板、从页面截图还原幻灯片、为成品加旁白与动画。 | 提供素材或主题并说明目标；默认流程会在 Stage 1/2 与你确认沟通契约和视觉系统，明确说「快速生成 / 不用确认」则跳过。要求 Python 3.10+，详见 [`SKILL.md`](./ppt-master/SKILL.md)。 |
 | [`mcp-builder`](./mcp-builder) | 从零创建或改进 MCP（Model Context Protocol）服务器，将外部 API 或服务封装成 LLM 可调用工具。 | 说明要接入的服务、接口和目标语言（Python/FastMCP 或 Node/TypeScript）；按 skill 指引设计工具、资源、错误处理并验证。 |
 | [`skill-creator`](./skill-creator) | 创建新 skill、修改已有 skill、优化触发描述，或运行评测/基准测试衡量 skill 效果。 | 提供目标能力和示例任务；可进一步要求运行 eval、benchmark、描述优化或生成 skill 包。 |
 | [`xmu-literature-downloader`](./xmu-literature-downloader) | 使用厦门大学图书馆、WebVPN、CAS SSO 或已登录浏览器会话，批量下载 ACS、Wiley、Elsevier、RSC、Science/AAAS 等论文 PDF。 | 提供论文 URL 清单（TSV/CSV）或说明机构访问方式，提出“批量下载论文 PDF”；skill 会按其验证、重试和记录流程执行。 |
+
+> **第三方来源**：[`ppt-master`](./ppt-master) 转载自 **[hugohe3/ppt-master](https://github.com/hugohe3/ppt-master)**（作者 Hugo He，MIT 许可，v6.6.0）。除收录说明 `README.md` 外，目录内容与上游逐字节一致；来源、安装、路径约定与更新方式见 [`ppt-master/README.md`](./ppt-master/README.md)。其他第三方 skill 自带 `LICENSE` / `NOTICE`，研究类 skill 的来源清单见 [`research-materials/SOURCES.md`](./research-materials/SOURCES.md)。
 
 ## 办公与文档 Skills
 
@@ -61,6 +64,7 @@ cp -R pfzhang-toolkit/skills/aihot <your-agent-skills-directory>/
 - 需要“内容提取、总结、翻译、分析”时，先用 [`markitdown`](./office/markitdown) 统一转换为 Markdown。
 - 需要创建或编辑最终文件时，使用对应的 [`docx`](./office/docx)、[`pptx`](./office/pptx)、[`xlsx`](./office/xlsx) 或 [`pdf`](./office/pdf) skill。
 - 需要从图片还原演示文稿时，使用 [`image2ppt`](./image2ppt)；需要生成或修改位图时，使用 [`imagen-skill`](./imagen-skill)。
+- 需要生成或美化一份**原生可编辑演示文稿**（含图表、转场、动画与旁白）时，用 [`ppt-master`](./ppt-master)；只在已有 PPTX 上做对象级增删改时用 [`office/pptx`](./office/pptx)。
 - 需要扩展 agent 能力时，使用 [`skill-creator`](./skill-creator)；需要接入外部服务时，使用 [`mcp-builder`](./mcp-builder)。
 
 ## 材料化学 + 机器学习科研 Skills
@@ -87,6 +91,7 @@ skills/
 ├── image2ppt/
 ├── imagen-skill/
 ├── mcp-builder/
+├── ppt-master/
 ├── research-materials/
 │   ├── atomistic-simulation/
 │   ├── literature/
