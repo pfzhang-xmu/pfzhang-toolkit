@@ -70,6 +70,12 @@ rsync -a --delete --exclude='__pycache__/' --exclude='*.pyc' \
 
 > 请勿在本仓库内运行上游的 `scripts/update_repo.py`：它会在 `REPO_ROOT`（即本仓库根）执行 `git pull`，拉取的是 `pfzhang-toolkit` 而非上游 ppt-master。
 
+> ⚠️ **`.gitignore` 冲突已处理**：本仓库 `.gitignore` 的全局 `data/` 规则会连带排除 `scripts/pptx_shapes/data/`——其中 `presetShapeDefinitions.xml` / `presetShapeSemantics.json` / `shape_type_values.txt` 是 `svg_to_pptx` 渲染 187 种 Office 预设轮廓的必需数据，缺失会导致原生形状导出失败（另有 Apache-2.0 与 Open XML SDK 的许可/声明文件须一并保留）。这些文件已用 `git add -f` 强制纳入版本控制；一旦被跟踪，后续修改便不再受该规则影响。若从零重新同步本目录，请同样执行：
+>
+> ```bash
+> git add -f skills/ppt-master/scripts/pptx_shapes/data/
+> ```
+
 ## 第三方依赖的许可证提示
 
 `requirements.txt` 中的 **PyMuPDF 采用 AGPL-3.0**（Artifex 另提供商业许可），仅被 PDF 转换脚本使用；不转换 PDF 源可跳过该依赖。若要连同依赖一起再分发，请先核对 AGPL 条款。
