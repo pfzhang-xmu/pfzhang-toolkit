@@ -914,6 +914,7 @@ def download_one(row: dict, out_dir: Path, retries: int, force: bool) -> tuple[s
             return ("fail", filename, 0, "Elsevier PII 解析失败（doi.org 重定向未拿到 PII）")
 
     last_err = ""
+    cf_routes: list[str] = []   # 记录哪些路线撞了 CF 挑战（用于最终归因）
     for attempt in range(1, retries + 1):
         for label, raw_url in routes:
             target = raw_url
@@ -931,6 +932,11 @@ def download_one(row: dict, out_dir: Path, retries: int, force: bool) -> tuple[s
             else:
                 data, why, cf_hit = _try_route(target, wait)
             if data is None:
+                if cf_hit:
+                    cf_routes.append(label)
+                    # 直连撞 CF 是**预期情况**，不是故障 —— libproxy 路线会自动接手。
+                    # 但要让用户看见，否则会误以为「整条链都挂了」。
+                    safe_print(f"    {filename} [{label}] 撞 Cloudflare 机器人验证 → 自动改走后续路线")
                 last_err = f"[{label}] {why[:110]}"
                 continue
 
@@ -942,6 +948,13 @@ def download_one(row: dict, out_dir: Path, retries: int, force: bool) -> tuple[s
         if attempt < retries:
             time.sleep(5 * attempt)
 
+    # 归因：全部路线失败时，明确告诉用户「哪些撞了 CF、哪些是别的原因」，
+    # 否则最后一根路线的错误会覆盖掉真正的关键信息。
+    if cf_routes:
+        cf_desc = "、".join(cf_routes)
+        hint = (f"（{cf_desc} 撞了 Cloudflare 机器人验证；"
+                f"libproxy 智能网关路线也已尝试）")
+        return ("fail", filename, 0, f"{hint} 最后一次错误: {last_err or '未知错误'}")
     return ("fail", filename, 0, last_err or "未知错误")
 
 

@@ -748,14 +748,21 @@ head -c 8 paper.pdf   # 正常：%PDF-1.4   异常：<!DOCTYP
 ### Cloudflare "请稍候…" 卡住不消失
 
 - ACS/Science/RSC/Wiley：WebVPN 下 CF 应 5-10 秒自解。如果超过 60 秒，检查 WebVPN 是否登录。
-- Elsevier：首次可能 30-60 秒。如果超过 120 秒，可能是 Turnstile 交互验证 —— 需要在 Edge 中手动点击复选框。
+- Elsevier：首次可能 30-60 秒。**不需要你手动点复选框** —— skill 会自动改走 libproxy 智能网关路线（见「坑 8」），日志会打印
+  `[落地页] 撞 Cloudflare 机器人验证 → 自动改走后续路线`，随后自动取回 PDF。
+  只有当 libproxy 路线也失败时，才需要你在 Edge 里看是不是要登录/扫码，或出版商对该出口 IP 临时限流。
 - 如果所有出版社都卡 CF：WebVPN session 可能过期，重新登录。
 
 ### Elsevier 返回 CF 机器人验证
 
 直连 `sciencedirect.com` 会撞上 Cloudflare Turnstile 交互挑战（页面显示「Are you a robot?」）。
 **这不是付费墙，也不是无法自动化** —— 改走厦大 libproxy 智能网关即可自动放行，
-详见「坑 8」。若 libproxy 也失效，检查是否已登录厦大统一身份认证（`libproxy.xmu.edu.cn` 首页有「登录」入口）。
+详见「坑 8」。**这一步由 skill 自动完成，不需要用户手动点复选框。**
+
+只有当整条降级链（直连落地页 → libproxy 落地页 → PDF 直链 → libproxy 直链）全部失败时，
+才需要用户介入。那时的典型原因是：厦大统一身份认证未登录（`libproxy.xmu.edu.cn` 首页有「登录」入口）、
+或出版商对该出口 IP 临时限流（等几分钟或换网络）。此时日志会明确指出
+`（落地页 撞了 Cloudflare 机器人验证；libproxy 智能网关路线也已尝试）`。
 
 ### Python 类型注解兼容性
 

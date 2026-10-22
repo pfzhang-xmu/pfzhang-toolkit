@@ -2,7 +2,7 @@
 
 A Claude Code skill for legally downloading, retrying, and reading academic PDFs through the user's own logged-in Xiamen University Library / WebVPN / Smart Gateway / publisher browser session.
 
-中文简介：这是一个面向厦大图书馆/WebVPN/智能网关场景的文献下载、失败重试与全文读取 skill。它使用用户自己已经登录的浏览器会话，在授权范围内保存 PDF 和 supporting information，并对文件做页数、PDF 签名和文本可读性验证。适合"网页里能打开 PDF，但命令行下载 403/401/登录页""CAS SSO 中断批量下载""ScienceDirect/出版商人机验证后需要继续同一页下载"的情况。
+中文简介：这是一个面向厦大图书馆/WebVPN/智能网关场景的文献下载、失败重试与全文读取 skill。它使用用户自己已经登录的浏览器会话，在授权范围内保存 PDF 和 supporting information，并对文件做页数、PDF 签名和文本可读性验证。适合"网页里能打开 PDF，但命令行下载 403/401/登录页""CAS SSO 中断批量下载""ScienceDirect 撞 Cloudflare 机器人验证"的情况。
 
 中文快速使用教程：
 
@@ -23,10 +23,13 @@ A Claude Code skill for legally downloading, retrying, and reading academic PDFs
 4. 告诉 Claude 你的文献清单（DOI 或完整引文），并说明输出文件夹。
 5. Claude 会执行 `batch_download.py --tsv <清单> --out <输出目录>`，逐篇下载并做 PDF 真实性校验。
 6. 如果网页要求验证码、Cloudflare、人机验证、扫码、短信/OTP 或二次认证，需要你本人在 Edge 里完成；agent 不绕过这些验证，也不自动点击出版商的人机验证。
+   > **注意**：出版商的人机验证分两种，处理方式不同。
+   > - **Cloudflare 的「Are you a robot?」交互挑战**（ScienceDirect 最典型）—— skill 会**自动**改走厦大 libproxy 智能网关，你不需要手动点。直连撞了 CF 属于预期内的正常降级，日志会打印 `[xxx] 撞 Cloudflare 机器人验证 → 自动改走后续路线`，随后自动取回 PDF。
+   > - **真正的 CAPTCHA / 扫码 / 短信 OTP / 二次认证**（登录类）—— 这一类 agent 无法代办，必须你本人在浏览器里完成。skill 会停在当前 tab 并等你确认后继续。
 7. 推荐小批量使用：一次 5-10 篇比较稳，最多 15-20 篇，并保留 manifest 记录。不要用它批量扫关键词结果、整期杂志或大量连续下载。
 8. 如果 Claude Code 没有自动识别这个 skill，把仓库安装到 `~/.claude/skills/xmu-literature-downloader`。
 9. 如果遇到厦大统一身份认证 / CAS SSO（`ids.xmu.edu.cn`），不要把账号密码发给 agent。若浏览器已经自动填好账号密码，你可以明确授权 agent 只点一次"登录/确认登录"；若出现扫码、短信/OTP、验证码、人机验证或安全提示，则需要你自己在浏览器里完成。
-10. 如果遇到 ScienceDirect 的 `Are you a robot?` 或其它出版商验证，让 agent 停在当前 tab，自己手动完成验证后再让 agent 从同一个页面继续。
+10. 遇到 Cloudflare 的「Are you a robot?」**不需要**你手动点 —— skill 会自动切换到厦大 libproxy 智能网关路线。只有当整条降级链（直连 → libproxy）都失败时，才需要你介入：那时请打开 Edge 看是不是需要登录/扫码/二次认证，或出版商对该出口 IP 临时限流（等几分钟或换网络再试）。
 
 ### 命令行直接跑（不走 agent）
 
@@ -86,7 +89,12 @@ python3 $SKILL/batch_download.py --limit 0 --workers 3 --out ~/papers
 
 This skill only uses user-authorized institutional access.
 
-It does not bypass paywalls, CAPTCHA, Cloudflare, two-factor authentication, publisher bot checks, DRM, or account restrictions. If a page asks for CAPTCHA, QR login, SMS/OTP, Cloudflare, "Are you a robot?", or publisher bot verification, the user must complete it in Chrome.
+It does not bypass paywalls, CAPTCHA, Cloudflare, two-factor authentication, publisher bot checks, DRM, or account restrictions.
+
+Two kinds of challenge need to be distinguished:
+
+- **Cloudflare's interactive "Are you a robot?" check** (most typical on ScienceDirect) is handled automatically. The skill detects the challenge and switches to the XMU libproxy smart gateway route on its own — no manual clicking is required. A direct-connect CF hit is an expected fallback, and the log prints `[route] hit Cloudflare bot check → switching to the next route`.
+- **Genuine login challenges** — CAPTCHA, QR login, SMS/OTP, two-factor authentication — cannot be automated. The skill stops at the current tab and waits for you to complete them in the browser.
 
 Do not paste school account passwords, CAS passwords, SMS codes, OTP codes, QR login results, cookies, or session tokens into chat. The intended workflow is browser handoff: the agent opens the page, the user completes authentication in Chrome, and the agent resumes after the user confirms. If the XMU CAS page is already filled by Chrome's password manager and you explicitly authorize it, the agent may click the visible login/confirm button once without reading or typing credentials.
 
@@ -200,7 +208,7 @@ For multi-paper work, create a manifest with at least:
 id	title	doi	year	venue	status	pdf_path	si_status	si_paths	source_url	notes
 ```
 
-Keep the batch small and auditable. Stop when login, CAPTCHA, WebVPN expiry, publisher security checks, or suspicious download prompts appear.
+Keep the batch small and auditable. Stop when login, CAPTCHA, WebVPN expiry, publisher security checks, or suspicious download prompts appear. A Cloudflare bot check on the direct route is not a stop condition — the skill falls back to the libproxy route by itself.
 
 For CAS retries, use the richer template in `examples/cas-retry-template.tsv`.
 
