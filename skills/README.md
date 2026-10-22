@@ -43,7 +43,7 @@ cp -R pfzhang-toolkit/skills/aihot <your-agent-skills-directory>/
 | [`ppt-master`](./ppt-master) | 把 PDF、DOCX、网页、Markdown 或一个主题做成**原生可编辑**的 PPTX（真实形状、图表、转场、动画）；也能美化已有 PPTX、生成可复用品牌/版式模板、从页面截图还原幻灯片、为成品加旁白与动画。 | 提供素材或主题并说明目标；默认流程会在 Stage 1/2 与你确认沟通契约和视觉系统，明确说「快速生成 / 不用确认」则跳过。要求 Python 3.10+，详见 [`SKILL.md`](./ppt-master/SKILL.md)。 |
 | [`mcp-builder`](./mcp-builder) | 从零创建或改进 MCP（Model Context Protocol）服务器，将外部 API 或服务封装成 LLM 可调用工具。 | 说明要接入的服务、接口和目标语言（Python/FastMCP 或 Node/TypeScript）；按 skill 指引设计工具、资源、错误处理并验证。 |
 | [`skill-creator`](./skill-creator) | 创建新 skill、修改已有 skill、优化触发描述，或运行评测/基准测试衡量 skill 效果。 | 提供目标能力和示例任务；可进一步要求运行 eval、benchmark、描述优化或生成 skill 包。 |
-| [`xmu-literature-downloader`](./xmu-literature-downloader) | 使用厦门大学图书馆、WebVPN、CAS SSO 或已登录浏览器会话，批量下载 ACS、Wiley、Elsevier、RSC、Science/AAAS 等论文 PDF。 | 提供论文 URL 清单（TSV/CSV）或说明机构访问方式，提出“批量下载论文 PDF”；skill 会按其验证、重试和记录流程执行。 |
+| [`xmu-literature-downloader`](./xmu-literature-downloader) | 使用厦门大学图书馆、WebVPN、CAS SSO 或已登录浏览器会话，批量下载论文 PDF。已实测 13 家出版社（ACS、Wiley、Elsevier/ScienceDirect、RSC、Science/AAAS、Springer、MDPI、Frontiers、T&F、APS、OUP、IEEE 等），**只给 DOI 即可**，清单支持 TSV/CSV。 | 提供 DOI 清单（TSV/CSV）或说明机构访问方式，提出“批量下载论文 PDF”；skill 会先做前置自检（代理/端口/登录/授权），再逐篇下载并做四重 PDF 真实性校验。 |
 
 > **第三方来源**：[`ppt-master`](./ppt-master) 转载自 **[hugohe3/ppt-master](https://github.com/hugohe3/ppt-master)**（作者 Hugo He，MIT 许可，v6.6.0）。除收录说明 `README.md` 外，目录内容与上游逐字节一致；来源、安装、路径约定与更新方式见 [`ppt-master/README.md`](./ppt-master/README.md)。其他第三方 skill 自带 `LICENSE` / `NOTICE`，研究类 skill 的来源清单见 [`research-materials/SOURCES.md`](./research-materials/SOURCES.md)。
 

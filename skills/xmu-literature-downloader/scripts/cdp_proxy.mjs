@@ -8,7 +8,35 @@ import http from "node:http";
 import { WebSocket } from "ws";
 
 const PORT = parseInt(process.env.CDP_PROXY_PORT || "3456", 10);
-const BROWSER = `http://127.0.0.1:${process.env.CDP_BROWSER_PORT || "9222"}`;
+
+// ---- 浏览器端口自动探测 ----
+// 坑：start_cdp.sh 把 Edge 起在 9223，但本文件原本默认连 9222，
+// 而 9222 常常被别的进程占着（实测返回 404 而不是 CDP JSON）→ 代理"看着活着但连不上"。
+// 这里启动时依次探测，优先用显式指定的端口。
+const CANDIDATE_PORTS = [
+  ...(process.env.CDP_BROWSER_PORT ? [parseInt(process.env.CDP_BROWSER_PORT, 10)] : []),
+  9223, 9222,
+];
+
+let BROWSER_PORT = CANDIDATE_PORTS[0];
+const BROWSER = () => `http://127.0.0.1:${BROWSER_PORT}`;
+
+async function detectBrowserPort() {
+  for (const p of CANDIDATE_PORTS) {
+    try {
+      const resp = await fetch(`http://127.0.0.1:${p}/json/version`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      if (!resp.ok) continue;
+      const j = await resp.json();
+      if (j && j.webSocketDebuggerUrl) {
+        BROWSER_PORT = p;
+        return p;
+      }
+    } catch (_) { /* 试下一个 */ }
+  }
+  return null;
+}
 
 // ---- 连接池 ----
 const pool = new Map();  // targetId → { ws, pending, ref }
@@ -33,7 +61,7 @@ async function acquireWS(targetId) {
   }
 
   // 获取最新 WebSocket URL
-  const targets = await fetchJson(`${BROWSER}/json`);
+  const targets = await fetchJson(`${BROWSER()}/json`);
   const info = targets.find((t) => t.id === targetId);
   if (!info?.webSocketDebuggerUrl) {
     throw new Error(`Target ${targetId} unreachable`);
@@ -99,7 +127,7 @@ setInterval(() => {
 
 async function handleNew(url) {
   const target = await fetchJson(
-    `${BROWSER}/json/new?${new URLSearchParams({ url: url || "about:blank" })}`,
+    `${BROWSER()}/json/new?${new URLSearchParams({ url: url || "about:blank" })}`,
     { method: "PUT" }
   );
   return { targetId: target.id, ...target };
@@ -128,14 +156,14 @@ async function handleInfo(targetId) {
     const val = result.result?.value;
     if (val) return { targetId, ...val };
   } catch (_) {}
-  const targets = await fetchJson(`${BROWSER}/json`);
+  const targets = await fetchJson(`${BROWSER()}/json`);
   const info = targets.find((t) => t.id === targetId);
   return { targetId, title: info?.title || "", url: info?.url || "", ready: "unknown" };
 }
 
 async function handleClose(targetId) {
   try { await send(targetId, "Page.close", {}, 10000); } catch (_) {}
-  try { await fetchJson(`${BROWSER}/json/close/${targetId}`); } catch (_) {}
+  try { await fetchJson(`${BROWSER()}/json/close/${targetId}`); } catch (_) {}
   pool.delete(targetId);
   return { closed: true };
 }
@@ -157,7 +185,7 @@ const server = http.createServer(async (req, res) => {
 
   try {
     if (p === "/health")               json(200, { ok: true, conns: pool.size });
-    else if (p === "/targets")         json(200, await fetchJson(`${BROWSER}/json`));
+    else if (p === "/targets")         json(200, await fetchJson(`${BROWSER()}/json`));
     else if (p === "/new")             json(200, await handleNew(q.url));
     else if (p === "/navigate")        json(200, await handleNavigate(q.target, q.url));
     else if (p === "/info")            json(200, await handleInfo(q.target));
@@ -172,4 +200,12 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => console.log(`CDP proxy v2 on http://127.0.0.1:${PORT}  |  browser: ${BROWSER}`));
+// 启动前先探测真实可用的 CDP 端口（探测不到也不阻塞启动，等价于旧行为）
+const detected = await detectBrowserPort();
+if (detected) {
+  console.log(`[cdp-proxy] 浏览器 CDP 端口自动探测命中: ${detected}`);
+} else {
+  console.log(`[cdp-proxy] 未能自动探测到 CDP 端口，回退到 ${BROWSER_PORT}（请确认 Edge 已带 --remote-debugging-port 启动）`);
+}
+
+server.listen(PORT, () => console.log(`CDP proxy v2 on http://127.0.0.1:${PORT}  |  browser: ${BROWSER()}`));
