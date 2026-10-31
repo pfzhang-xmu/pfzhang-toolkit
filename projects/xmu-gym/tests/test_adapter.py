@@ -1,11 +1,11 @@
-import os
+import sys
 
 import pytest
 
 from datetime import datetime, timezone
 from core import adapter
 
-pytestmark = pytest.mark.skipif(os.name == "nt", reason="macOS lsof profile discovery")
+pytestmark = pytest.mark.skipif(sys.platform != "darwin", reason="macOS lsof profile discovery")
 
 def test_tomorrow_is_china_date_and_fixed_slot():
     target = adapter.daily_target(datetime(2026, 10, 28, 16, 30, tzinfo=timezone.utc))

@@ -26,6 +26,11 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            projects/xmu-gym
+            .github
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
