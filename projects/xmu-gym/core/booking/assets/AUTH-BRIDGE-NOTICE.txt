@@ -1,0 +1,5 @@
+Native hook derived from evi0s/WMPFDebugger, GPL-2.0-only.
+Upstream: https://github.com/evi0s/WMPFDebugger
+Commit: 832b2bb0399d81eda8bad2cea776b68444505287
+Modifications and corresponding source are included in this asset directory.
+The Python transport implements the documented wire field layout independently.

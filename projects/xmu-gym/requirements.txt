@@ -1,0 +1,9 @@
+--find-links vendor
+
+requests>=2.32,<3
+onnxruntime==1.31.0
+numpy==2.5.4
+Pillow==12.3.0
+ccl_simplesnappy==0.4
+ccl_chromium_reader==0.3.18
+qrcode[pil]>=8,<9

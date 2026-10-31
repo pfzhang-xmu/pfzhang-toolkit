@@ -1,0 +1,35 @@
+# Runtime data — never commit
+state/
+*.log
+.env
+.env.*
+config.local.json
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.test-tmp/
+.verify/
+.coverage
+htmlcov/
+
+# Build / packaging
+dist/
+build/
+*.spec
+*.egg-info/
+node_modules/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local screenshots / scratch
+docs/screenshots/*.tmp
+*.png.tmp

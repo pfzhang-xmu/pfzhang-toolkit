@@ -31,6 +31,7 @@
 
 - [`dsh-figureforge`](./projects/dsh-figureforge)：浏览器本地科研图片编辑器。
 - [`paper-workbench`](./projects/paper-workbench)：论文写作、审查、数据、绘图和导出全流程工作台。
+- [`xmu-gym`](./projects/xmu-gym)：厦大体育场馆预约控制台（macOS / Windows）。
 
 ## Paper Workbench
 
@@ -56,6 +57,23 @@ Paper Workbench 的开发分支是 `main`，稳定版本使用 `paper-workbench-
 
 各插件和项目目录内包含其各自的使用、迁移、测试和许可证说明。
 
+## XMU Gym
+
+XMU Gym 是一个本机运行的厦大体育场馆预约控制台：从电脑微信的「厦大体育」小程序本地缓存读取登录态，在页面上查场次、预约、取消、看入场码，并在每天 06:58 预热、07:00 提交次日场次。macOS 和 Windows 共用同一套 Python + 静态网页；微信/Hermes 只是可选的通知和聊天入口。
+
+![XMU Gym 预订页](./projects/xmu-gym/docs/screenshots/booking.png)
+
+快速开始：
+
+```bash
+git clone https://github.com/pfzhang-xmu/pfzhang-toolkit.git
+cd pfzhang-toolkit/projects/xmu-gym
+./scripts/setup-macos.sh
+./scripts/start-macos.command
+```
+
+Windows 先运行 `powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1`，再运行 `scripts\start-windows.bat`。完整安装、安全规则和故障排查见 [`projects/xmu-gym/README.md`](./projects/xmu-gym/README.md)。
+
 ## 许可证
 
-每个目录保留自己的许可证。除非目录内另有说明，Paper Workbench 和 FigureForge 使用 MIT 许可证。
+每个目录保留自己的许可证。除非目录内另有说明，Paper Workbench、FigureForge 和 XMU Gym 使用 MIT 许可证。

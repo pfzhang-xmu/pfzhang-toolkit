@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>XMU Gym</title>
+<link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="scene" aria-hidden="true"><img src="/assets/scene-full.jpg" alt="" /></div>
+
+<div class="app">
+
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="brand">
+        <img class="brand-mark" src="/assets/mark.svg" alt="" width="44" height="44" />
+        <div class="brand-text">
+          <h1 class="brand-name">XMU <em>Gym</em></h1>
+          <p class="brand-sub">厦门大学 · 体育馆</p>
+        </div>
+      </div>
+      <div class="masthead-aside">
+        <p class="demo-badge" id="demo_badge" hidden>演示数据 · 不会提交</p>
+        <p class="masthead-line" id="masthead_line">正在读取本机状态…</p>
+        <p class="masthead-clock" id="masthead_clock">—</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="主视图">
+    <button class="tab is-on" role="tab" aria-selected="true" data-tab="tomorrow">
+      <span class="tab-label">预订</span><span class="tab-meta" id="tab_meta_tomorrow">—</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="orders">
+      <span class="tab-label">我的预约</span><span class="tab-meta" id="tab_meta_orders">—</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="settings">
+      <span class="tab-label">设置</span><span class="tab-meta">每日任务</span>
+    </button>
+  </nav>
+
+  <main class="page" id="page">
+
+    <!-- ============ 明天 ============ -->
+    <section class="panel" id="panel_tomorrow" role="tabpanel" aria-label="明天">
+      <article class="ticket" id="ticket">
+        <div class="ticket-head">
+          <div>
+            <p class="kicker" id="ticket_kicker">明天</p>
+            <h2 class="ticket-title" id="ticket_title">读一下明天的场次</h2>
+            <p class="ticket-sub" id="ticket_sub">先核验账号，再查场次；查到的名额只代表查询那一刻。</p>
+          </div>
+          <div class="ticket-stamp" id="ticket_stamp" hidden>
+            <span class="stamp-top">已核实</span>
+            <span class="stamp-bottom">BOOKED</span>
+          </div>
+        </div>
+
+        <div class="ticket-body">
+          <div class="venue-bar">
+            <span class="venue-label">场馆</span>
+            <span class="venue-pick"><select id="sel_sport" aria-label="项目"></select></span>
+            <span class="venue-slash" aria-hidden="true">·</span>
+            <span class="venue-pick venue-pick-wide"><select id="sel_venue" aria-label="场地"></select></span>
+          </div>
+
+          <div class="day-switch" id="day_switch" role="group" aria-label="选择日期">
+            <button type="button" class="day" data-offset="0"><b>今天</b><small>—</small></button>
+            <button type="button" class="day is-on" data-offset="1"><b>明天</b><small>—</small></button>
+            <button type="button" class="day" data-offset="2"><b>后天</b><small>—</small></button>
+          </div>
+
+          <div class="stagerow" id="stagerow">
+            <p class="stage-line" id="stage_line">正在核验账号…</p>
+            <button type="button" class="btn btn-quiet" id="btn_auth" hidden>核验账号</button>
+            <button type="button" class="btn btn-quiet" id="btn_query" hidden>查询场次</button>
+          </div>
+
+          <ul class="slots" id="slots" aria-label="场次"></ul>
+          <p class="slot-note" id="slot_note" hidden></p>
+        </div>
+
+        <div class="ticket-foot">
+          <p class="foot-hint" id="foot_hint">名额以学校实时校验为准；预约成功后不可在此撤销，只能按规则取消。</p>
+          <div class="foot-actions" id="foot_actions">
+            <button type="button" class="btn btn-primary" id="btn_book" disabled>
+              订这个时段 <span class="arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <section class="strip" id="daily_strip">
+        <div class="strip-main">
+          <span class="strip-dot" id="daily_dot"></span>
+          <div>
+            <p class="strip-title" id="daily_title">每日自动预约</p>
+            <p class="strip-sub" id="daily_sub">正在读取…</p>
+          </div>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" data-goto="settings">调整</button>
+      </section>
+    </section>
+
+    <!-- ============ 我的预约 ============ -->
+    <section class="panel" id="panel_orders" role="tabpanel" aria-label="我的预约" hidden>
+      <div class="page-head">
+        <div>
+          <p class="kicker">未核销的预约</p>
+          <h2 class="page-title">我的预约</h2>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn_refresh_orders">刷新</button>
+      </div>
+      <div id="orders_host" class="orders-host">
+        <p class="loading-line">正在读取订单…</p>
+      </div>
+    </section>
+
+    <!-- ============ 设置 ============ -->
+    <section class="panel" id="panel_settings" role="tabpanel" aria-label="设置" hidden>
+      <div class="page-head">
+        <div>
+          <p class="kicker">本机配置</p>
+          <h2 class="page-title">设置</h2>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <section class="card card-wide">
+          <h3 class="card-title">每日自动预约</h3>
+          <p class="card-sub">每天 06:58 在本机待命，07:00 提交第二天首选时段。</p>
+          <p class="venue-current" id="daily_venue_note">—</p>
+          <label class="switch-row">
+            <input type="checkbox" id="chk_scheduler" />
+            <span class="switch"><span class="switch-knob"></span></span>
+            <span class="switch-text">启用每日自动预约<small>本程序保持运行时生效</small></span>
+          </label>
+          <div class="slot-pick">
+            <label class="field">
+              <span class="field-label">首选开始</span>
+              <span class="select-wrap"><select id="sel_start"></select></span>
+            </label>
+            <label class="field">
+              <span class="field-label">首选结束</span>
+              <span class="select-wrap"><select id="sel_end"></select></span>
+            </label>
+          </div>
+          <label class="switch-row">
+            <input type="checkbox" id="chk_fallback" />
+            <span class="switch"><span class="switch-knob"></span></span>
+            <span class="switch-text">首选满了，就往后找更晚的场次<small>只会往后，不会往早</small></span>
+          </label>
+          <div class="card-foot">
+            <p class="field-note" id="daily_state_note">—</p>
+            <button type="button" class="btn btn-primary btn-sm" id="btn_save_daily">保存</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3 class="card-title">账号</h3>
+          <p class="card-sub">从本机微信的登录态里读取，不需要在这里输密码。</p>
+          <label class="field">
+            <span class="field-label">微信配置</span>
+            <span class="select-wrap"><select id="sel_profile"></select></span>
+          </label>
+          <p class="account-state" id="account_state">未核验</p>
+          <div class="card-foot">
+            <p class="field-note">有多个微信配置时在这里选；账号变更会自动发现并拒绝操作。</p>
+            <button type="button" class="btn btn-ghost btn-sm" id="btn_auth2">核验账号</button>
+          </div>
+        </section>
+
+        <section class="card card-about">
+          <h3 class="card-title">关于</h3>
+          <dl class="about-list">
+            <div><dt>数据</dt><dd>厦门大学体育场馆系统（只读查询 + 提交预约）</dd></div>
+            <div><dt>登录态</dt><dd>读取本机微信小程序会话，不上传</dd></div>
+            <div><dt>付款</dt><dd>从不自动付款；显示价格≠需要线上支付</dd></div>
+            <div><dt>本机任务</dt><dd>06:58 每日预约（本程序运行时）</dd></div>
+          </dl>
+        </section>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- 确认预约 -->
+<dialog class="modal" id="dlg_confirm">
+  <form method="dialog" class="modal-inner">
+    <p class="kicker">确认之后无法在页面里撤回</p>
+    <h2 class="modal-title">真去订这一场？</h2>
+    <dl class="confirm-list">
+      <div><dt>场馆</dt><dd id="cf_venue">—</dd></div>
+      <div><dt>日期</dt><dd id="cf_date">—</dd></div>
+      <div><dt>时段</dt><dd id="cf_time">—</dd></div>
+    </dl>
+    <p class="modal-note">提交后若结果不明，页面只会告诉你“去小程序核实”，不会替你重试。</p>
+    <div class="modal-actions">
+      <button value="cancel" class="btn btn-ghost" formnovalidate>再想想</button>
+      <button value="ok" class="btn btn-primary" formnovalidate>确认预约</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- 入场码 -->
+<dialog class="modal modal-qr" id="dlg_qr">
+  <div class="modal-inner">
+    <p class="kicker" id="qr_kicker">入场码</p>
+    <div class="qr-frame" id="qr_frame"><p class="loading-line">正在生成…</p></div>
+    <p class="modal-note">二维码是入场凭证，现场闸机直接扫。页面关闭后不再显示。</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="btn_qr_close">关掉</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast-host" id="toast_host" aria-live="polite"></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

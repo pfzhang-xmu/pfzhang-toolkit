@@ -31,6 +31,7 @@ See the [skills catalog](./skills/README.md) for the full index, direct links, R
 
 - [`dsh-figureforge`](./projects/dsh-figureforge) — browser-local scientific figure editor.
 - [`paper-workbench`](./projects/paper-workbench) — end-to-end academic writing, review, data, figure, and export workbench.
+- [`xmu-gym`](./projects/xmu-gym) — local-first XMU sports venue booking console for macOS and Windows.
 
 ## Paper Workbench
 
@@ -56,6 +57,23 @@ Paper Workbench development happens on `main`. Stable snapshots use tags such as
 
 See each project or plugin directory for its own usage, migration, testing, and license details.
 
+## XMU Gym
+
+XMU Gym is a local-first booking console for Xiamen University sports venues. It reads the logged-in XMU mini program session from WeChat's local storage, then gives you a page for availability, booking, cancellation, entry QR, and a 06:58 / 07:00 daily job. macOS and Windows share the same Python + static-web stack; WeChat via Hermes is an optional notification/chat layer.
+
+![XMU Gym booking page](./projects/xmu-gym/docs/screenshots/booking.png)
+
+Quick start:
+
+```bash
+git clone https://github.com/pfzhang-xmu/pfzhang-toolkit.git
+cd pfzhang-toolkit/projects/xmu-gym
+./scripts/setup-macos.sh
+./scripts/start-macos.command
+```
+
+Windows: run `powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1`, then `scripts\start-windows.bat`. See [`projects/xmu-gym/README.md`](./projects/xmu-gym/README.md) for the full setup, safety rules, and troubleshooting.
+
 ## License
 
-Each directory keeps its own license. Paper Workbench and FigureForge are MIT-licensed unless noted otherwise.
+Each directory keeps its own license. Paper Workbench, FigureForge, and XMU Gym are MIT-licensed unless noted otherwise.

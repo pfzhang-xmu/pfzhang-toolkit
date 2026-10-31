@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest>=8,<10
+pytest-timeout>=2.3,<3
+playwright>=1.40
