@@ -188,6 +188,7 @@ class Scheduler:
         env = dict(os.environ)
         env["XMU_GYM_STATE"] = str(config.STATE_ROOT)
         env["PYTHONUNBUFFERED"] = "1"
+        env["PYTHONUTF8"] = "1"
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
         done = subprocess.run(
             [sys.executable, "-m", "app.daily_prestart"],

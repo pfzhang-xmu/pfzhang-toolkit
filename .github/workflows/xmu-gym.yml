@@ -1,5 +1,8 @@
 name: XMU Gym
 
+env:
+  PYTHONUTF8: "1"
+
 on:
   push:
     paths:
