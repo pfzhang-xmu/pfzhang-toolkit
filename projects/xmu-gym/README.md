@@ -183,6 +183,8 @@ scripts\start-windows.bat --demo --port 1431
 powershell -ExecutionPolicy Bypass -File scripts\install-autostart-windows.ps1
 ```
 
+如果 macOS 登录自启后报 `SESSION_READ_FAILED`、但手动 `start-macos.command` 正常：给 `.venv/bin/python`（或启动它的 Python.app）加「完全磁盘访问权限」，或者继续用终端手动启动。
+
 程序运行时会尝试阻止空闲睡眠（macOS `caffeinate -i`，Windows `SetThreadExecutionState`），但：
 
 - 合盖、手动睡眠、关机、断网仍然会失败；
