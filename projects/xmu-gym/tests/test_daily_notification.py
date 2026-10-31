@@ -1,3 +1,4 @@
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -31,8 +32,9 @@ def test_verified_fallback_produces_matching_qr_and_text(tmp_path):
     assert '19:30' in result['message'] and '05' in result['message']
     image = Path(result['media_path'])
     assert image.read_bytes().startswith(b'\x89PNG')
-    assert image.stat().st_mode & 0o777 == 0o600
-    assert image.parent.stat().st_mode & 0o777 == 0o700
+    if os.name != 'nt':
+        assert image.stat().st_mode & 0o777 == 0o600
+        assert image.parent.stat().st_mode & 0o777 == 0o700
 
 
 @pytest.mark.parametrize("variant", ["duplicate", "wrong_order", "wrong_time", "wrong_court", "missing_detail", "wrong_account", "missing_order", "missing_time", "qr_failure", "invalid_png"])

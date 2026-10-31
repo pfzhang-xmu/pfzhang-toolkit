@@ -1,4 +1,5 @@
 import importlib.util
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -103,7 +104,8 @@ class DailyTests(unittest.TestCase):
             self.assertEqual(account, 'a'*64)
             with self.assertRaises(ValueError): daily.run_daily(store, backend, now)
             self.assertEqual(backend.book.call_count, 1)
-            self.assertEqual((Path(temp)/'daily.json').stat().st_mode & 0o777, 0o600)
+            if os.name != 'nt':
+                self.assertEqual((Path(temp)/'daily.json').stat().st_mode & 0o777, 0o600)
 
     def test_failed_or_unknown_submission_blocks_retry(self):
         with tempfile.TemporaryDirectory() as temp:
