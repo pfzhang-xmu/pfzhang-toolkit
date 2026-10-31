@@ -19,7 +19,7 @@ class OrdersTests(unittest.TestCase):
                     self.fail('duplicate cancellation entered')
 
     def test_read_and_cancel_are_account_bound_and_duplicate_blocked(self):
-        backend.load_adapter()  # add the upstream sidecar to the module path
+        backend.load_adapter()  # return the adapter module
         from core.booking import orders
         entry=SimpleNamespace(uid='1234')
         account=hashlib.sha256(b'1234').hexdigest()

@@ -23,7 +23,7 @@ class BackendTests(unittest.TestCase):
             load.return_value.CHINA=__import__('datetime').timezone.utc
             result=backend.Backend().availability({'sport':'健身房','venue':'翔安校区健身房','date':'2026-10-29'})
             self.assertEqual(result['state'],'date_not_published')
-    def test_booking_maps_selected_fields_to_upstream_target(self):
+    def test_booking_maps_selected_fields_to_booking_target(self):
         self.assertIsNotNone(backend, 'real backend missing')
         task={'sport':'健身房','venue':'翔安校区健身房','target_date':'2026-10-29','target_time_start':'13:30','target_time_end':'15:00','prefer_court':None}
         with patch.object(backend, 'load_adapter') as load:

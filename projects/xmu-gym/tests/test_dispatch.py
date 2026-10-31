@@ -32,7 +32,7 @@ class DispatchTests(unittest.TestCase):
         app=server.Bridge(backend); app.invoke('save_task',{'task':{'allow_time_fallback':False}})
         app.invoke('start_http_run', {'until':'auth'})
         with self.assertRaisesRegex(ValueError,'未核实'): app.invoke('start_http_run', {'until':'submit'})
-    def test_verified_upstream_result_is_a_completed_live_event(self):
+    def test_verified_server_result_is_a_completed_live_event(self):
         backend=Backend()
         backend.book=lambda task, account: {'ok':True,'state':'submitted','verified':True,'order_id':123,'time':'19:30-21:00','court':'01'}
         app=server.Bridge(backend); app.invoke('save_task',{'task':{'task_id':'t','allow_time_fallback':False}})

@@ -285,7 +285,7 @@ def run_daily(store, backend, now=None, expected_date=None, clock=None, sleep=No
         return True
 
     def final_commit_gate(_target):
-        # Called again by the upstream immediately before every addOrder send.
+        # Called again by the school API immediately before every addOrder send.
         check_window(clock(), run_date)
 
     try:

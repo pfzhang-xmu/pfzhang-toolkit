@@ -45,7 +45,7 @@ class QRClient(orders.OrdersClient):
     def require(self, path, fields, referer=None, *, timeout=None):
         result = self.post(path, fields, referer, timeout=timeout)
         if result.get('status') != 1:
-            # Do not propagate arbitrary upstream info: it may contain credentials.
+            # Do not propagate arbitrary server info: it may contain credentials.
             raise BookingError('QR_READ_FAILED', '读取预约失败')
         data = result.get('data')
         if getattr(self, '_capturing_login', False) and path == orders.LIST and fields.get('p') == '1':

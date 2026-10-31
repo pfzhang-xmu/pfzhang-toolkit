@@ -1,4 +1,4 @@
-"""Worker timings and bounded, redacted upstream exchange evidence."""
+"""Worker timings and bounded, redacted server exchange evidence."""
 import json
 import re
 from contextlib import contextmanager

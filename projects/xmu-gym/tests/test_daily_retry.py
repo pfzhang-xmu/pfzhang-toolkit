@@ -91,7 +91,7 @@ class RetryTests(unittest.TestCase):
         self.assertEqual(daily.MAX_RETRIES, 12)
         self.assertEqual(backend.MAX_BOOKING_ATTEMPTS, daily.MAX_ATTEMPTS)
 
-    def test_external_gate_is_composed_into_every_upstream_eligibility_check(self):
+    def test_external_gate_is_composed_into_every_server_eligibility_check(self):
         self.mod.run_candidates.return_value = {'ok':True,'verified':True}
         backend.Backend().book(TASK, ACCOUNT, eligibility=lambda target: None)
         gate = self.mod.run_candidates.call_args.kwargs['eligibility']
