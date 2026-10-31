@@ -43,5 +43,13 @@ jobs:
           python -m pip install -r requirements.txt -r requirements-dev.txt
       - name: Offline tests
         run: python -m pytest tests -q --ignore=tests/test_daily_ui.py
+      - name: PowerShell syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem scripts/*.ps1 | ForEach-Object {
+            [void][scriptblock]::Create((Get-Content $_.FullName -Raw))
+            Write-Host "OK $($_.Name)"
+          }
       - name: CLI smoke
         run: python -m app.cli info
